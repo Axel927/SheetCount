@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SheetCount</string>
+    <string name="startButton">Compter</string>
+</resources>
