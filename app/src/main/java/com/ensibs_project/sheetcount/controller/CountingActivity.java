@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -30,6 +31,8 @@ import com.ensibs_project.sheetcount.R;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+
+import com.ensibs_project.sheetcount.model.FindSheets;
 
 /**
  * Class for the activity to count the sheets
@@ -90,6 +93,7 @@ public class CountingActivity extends AppCompatActivity {
         // Creation of an unique filename
         @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("yyyMMdd_hhmmss").format(new Date());
         File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        Log.d("Axel", "takePicture: "+photoDir);
         try {
 
             File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
@@ -126,7 +130,13 @@ public class CountingActivity extends AppCompatActivity {
                     // When a picture has just been taken
 
                     // Getting of the image
-                    Bitmap image = BitmapFactory.decodeFile(photoPath);
+
+                    Bitmap image = null;
+                    try {
+                        image = BitmapFactory.decodeFile(FindSheets.drawContours(photoPath));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     // Print the image
                     imageViewer.setImageBitmap(image);
