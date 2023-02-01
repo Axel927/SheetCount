@@ -5,6 +5,7 @@ import android.util.Log;
 import android.content.Context;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import org.opencv.core.Core;
@@ -17,6 +18,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class FindSheets {
     public static String drawContours(String file) throws Exception {
+
         //Loading the OpenCV core library
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         Mat src = Imgcodecs.imread(file);
@@ -35,7 +37,7 @@ public class FindSheets {
         Imgproc.drawContours(src, contours, -1, color, 2, Imgproc.LINE_8,
                 hierarchey, 2, new Point() ) ;
 
-        boolean r=Imgcodecs.imwrite(file, src);
+        boolean r = Imgcodecs.imwrite(file, src);
         Log.d("Axel", "drawContours: "+r);
         return file;
     }

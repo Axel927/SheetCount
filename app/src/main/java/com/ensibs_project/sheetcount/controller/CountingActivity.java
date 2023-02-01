@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -31,6 +30,10 @@ import com.ensibs_project.sheetcount.R;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.ensibs_project.sheetcount.model.FindSheets;
 
@@ -55,7 +58,7 @@ public class CountingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceStata);
         setContentView(R.layout.activity_counting);
 
-        pictureButton = findViewById(R.id.button);
+        pictureButton = findViewById(R.id.takePictBtn);
         galleryButton = findViewById(R.id.galleryBtn);
 
         imageViewer = findViewById(R.id.imageView);
@@ -93,7 +96,7 @@ public class CountingActivity extends AppCompatActivity {
         // Creation of an unique filename
         @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("yyyMMdd_hhmmss").format(new Date());
         File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        Log.d("Axel", "takePicture: "+photoDir);
+
         try {
 
             File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
@@ -121,6 +124,7 @@ public class CountingActivity extends AppCompatActivity {
      * @param resultCode result code (must be ok)
      * @param data the data
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -157,8 +161,45 @@ public class CountingActivity extends AppCompatActivity {
                     // Get the string value in the column
                     String imgDecodableString = cursor.getString(columnIndex);
                     cursor.close();
+
+                    // Creation of an unique filename
+                    @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("yyyMMdd_hhmmss").format(new Date());
+                    File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                    try {
+                        File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
+                        // Saving of the full path
+                        photoPath = photoFile.getAbsolutePath();
+
+                        InputStream is;
+                        OutputStream os;
+
+                        try {
+                            is = new FileInputStream(imgDecodableString);
+                            os = new FileOutputStream(photoFile);
+                            byte[] buffer = new byte[1024];
+                            int len;
+                            while ((len = is.read(buffer)) > 0) {
+                                os.write(buffer, 0, len);
+                            }
+                            is.close();
+                            os.close();
+                        }
+                        catch(IOException e){
+                            e.printStackTrace();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+
                     // Define the image in ImageView after decoding of the string
-                    imageViewer.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    //imageViewer.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    try {
+                        imageViewer.setImageBitmap(BitmapFactory.decodeFile(FindSheets.drawContours(photoPath)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
