@@ -37,6 +37,13 @@ import java.io.OutputStream;
 
 import com.ensibs_project.sheetcount.model.FindSheets;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
 /**
  * Class for the activity to count the sheets
  */
@@ -137,7 +144,38 @@ public class CountingActivity extends AppCompatActivity {
 
                     Bitmap image = null;
                     try {
-                        image = BitmapFactory.decodeFile(FindSheets.drawContours(photoPath));
+
+                        Mat src = Imgcodecs.imread(photoPath);
+                        //Converting the image to Gray
+                        Mat gray = new Mat();
+                        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGBA2GRAY);
+                        //Detecting the edges
+                        Mat edges = new Mat();
+                        Imgproc.Canny(gray, edges, 60, 60*3, 3, false);
+                        // Changing the color of the canny
+                        Mat cannyColor = new Mat();
+                        Imgproc.cvtColor(edges, cannyColor, Imgproc.COLOR_GRAY2BGR);
+                        //Detecting the hough lines from (canny)
+                        Mat lines = new Mat();
+                        Imgproc.HoughLines(edges, lines, 1, Math.PI/180, 150);
+                        for (int i = 0; i < lines.rows(); i++) {
+                            double[] data1 = lines.get(i, 0);
+                            double rho = data1[0];
+                            double theta = data1[1];
+                            double a = Math.cos(theta);
+                            double b = Math.sin(theta);
+                            double x0 = a*rho;
+                            double y0 = b*rho;
+                            //Drawing lines on the image
+                            Point pt1 = new Point();
+                            Point pt2 = new Point();
+                            pt1.x = Math.round(x0 + 1000*(-b));
+                            pt1.y = Math.round(y0 + 1000*(a));
+                            pt2.x = Math.round(x0 - 1000*(-b));
+                            pt2.y = Math.round(y0 - 1000 *(a));
+                            Imgproc.line(cannyColor, pt1, pt2, new Scalar(0, 0, 255), 3);
+                        }
+                        Utils.matToBitmap(cannyColor, image);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
