@@ -1,3 +1,10 @@
+/**
+ * © 2023 Collen Leon and Tremaudant Axel
+ *
+ * This file contains the class which find and counts the sheets.
+ */
+
+
 package com.ensibs_project.sheetcount.model;
 
 import android.os.Environment;

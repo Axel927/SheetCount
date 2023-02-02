@@ -1,4 +1,18 @@
 <resources>
     <string name="app_name">SheetCount</string>
     <string name="startButton">Compter</string>
+    <string name="textNumberCounted">Nombre compté :</string>
+    <string name="valueCounted">0</string>
+    <string name="information">i</string>
+    <string name="addedQuantity">0</string>
+    <string name="plus">+</string>
+    <string name="minus">-</string>
+    <string name="total">Total :</string>
+    <string name="total_value">0</string>
+    <string name="image_viewer">Image viewer</string>
+    <string name="takePict">Prendre une photo</string>
+    <string name="next">Suivant</string>
+    <string name="choosePict">Choisir une photo</string>
+    <string name="summary">Résumé</string>
+    <string name="textAdd">Ajout :</string>
 </resources>

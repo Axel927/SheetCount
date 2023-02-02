@@ -1,6 +1,5 @@
 /**
- * © 2023 Nom Prenom
- * email
+ * © 2023 Collen Leon and Tremaudant Axel
  *
  * This file contains the class MainActivity which launch the app.
  */
