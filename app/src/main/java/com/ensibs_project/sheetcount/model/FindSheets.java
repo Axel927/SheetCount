@@ -32,9 +32,9 @@ import org.opencv.imgproc.Imgproc;
 
 public class FindSheets {
 
-    private static int amountSheets;
+    private int amountSheets;
 
-    public static int getCount() throws Exception {
+    public int getCount(){
         return amountSheets;
     }
 
@@ -245,7 +245,7 @@ public class FindSheets {
         return src;
     }
 
-    public static String processImage(String file) throws Exception {
+    public String processImage(String file) throws Exception {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         Mat src = Imgcodecs.imread(file);
         List sections = screeningBlack(src);

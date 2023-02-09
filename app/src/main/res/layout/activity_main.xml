@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#6AC5C1C1"
+    android:background="#C5C1C1"
     android:orientation="vertical"
     tools:context=".controller.MainActivity">
 
@@ -26,6 +26,9 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginRight="16dp"
+            android:background="#6AC5C1C1"
+            android:backgroundTint="#6AC5C1C1"
+            android:backgroundTintMode="add"
             android:text="@string/textNumberCounted"
             android:textAlignment="gravity"
             android:textSize="20sp"
@@ -37,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:background="#C5C1C1"
             android:text="@string/valueCounted"
             android:textSize="24sp"
             android:translationY="-16dp" />
@@ -72,6 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
+            android:background="#C5C1C1"
             android:text="@string/textAdd"
             android:textSize="20sp" />
 
@@ -82,11 +87,12 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:autofillHints=""
+            android:background="#C5C1C1"
             android:ems="10"
             android:inputType="numberDecimal"
             android:minHeight="48dp"
             android:text="@string/addedQuantity"
-            tools:ignore="LabelFor,TouchTargetSizeCheck" />
+            tools:ignore="LabelFor,TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="12dp"
@@ -154,6 +160,7 @@
             android:layout_width="84dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
+            android:background="#C5C1C1"
             android:text="@string/total"
             android:textSize="24sp" />
 
@@ -162,6 +169,7 @@
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="#C5C1C1"
             android:text="@string/total_value"
             android:textSize="34sp" />
 
@@ -177,6 +185,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="0dp"
         android:contentDescription="@string/image_viewer"
+        android:translationZ="-10dp"
         app:srcCompat="@drawable/launch_image" />
 
     <LinearLayout

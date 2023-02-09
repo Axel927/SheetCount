@@ -15,4 +15,10 @@
     <string name="choosePict">Choisir une photo</string>
     <string name="summary">Résumé</string>
     <string name="textAdd">Ajout :</string>
+    <string name="infoTitle">Informations</string>
+    <string name="infoText">infos</string>
+    <string name="back">Retour</string>
+    <string name="finish">Terminer</string>
+    <string name="totalText">Total : </string>
+    <string name="totalSheetText">0</string>
 </resources>
