@@ -34,6 +34,10 @@ public class FindSheets {
 
     private static int amountSheets;
 
+    public static int getCount() throws Exception {
+        return amountSheets;
+    }
+
     public static String drawContours(String file) throws Exception {
 
         //Loading the OpenCV core library
