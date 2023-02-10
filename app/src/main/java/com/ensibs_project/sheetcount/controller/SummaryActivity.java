@@ -8,8 +8,10 @@ package com.ensibs_project.sheetcount.controller;
 
 import static java.lang.Integer.parseInt;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +60,7 @@ public class SummaryActivity extends AppCompatActivity {
             totalCount.setText(String.valueOf(totalCounted));
         }
         catch (NullPointerException e){
-            Log.d("axel", "onCreate: erreur pointeur");
+            Log.d("axel", "onCreate: error pointer");
         }
 
     }
@@ -67,7 +69,20 @@ public class SummaryActivity extends AppCompatActivity {
      * Restart the app
      */
     private void finishCount(){
-        Runtime.getRuntime().exit(0);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.finishTitle)).setMessage(R.string.finishText)
+                .setPositiveButton(R.string.finishPositiveButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        closeContextMenu();
+                        Runtime.getRuntime().exit(0);
+                    }
+                }).setNegativeButton(R.string.finishNegativeButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        closeContextMenu();
+                    }
+                }).create().show();
     }
 
     /**

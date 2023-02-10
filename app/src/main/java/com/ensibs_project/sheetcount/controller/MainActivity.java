@@ -69,10 +69,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int SUMMARY_ACTIVITY_REQUEST_CODE = 3;
     private static final String BUNDLE_STATE_IMAGE = "BUNDLE_STATE_IMAGE";
     private static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
-    private static final String BUNDLE_STATE_COUNT_SIZE = "BUNDLE_STATE_COUNT_SIZE";
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
-    private static List<String> countedList;
+    private static ArrayList<String> countedList;
     private FindSheets findSheets;
 
     /**
@@ -111,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         summaryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                countedList.add(totalText.getText().toString());
                 Intent summaryActivityIntent = new Intent(MainActivity.this, SummaryActivity.class);
                 startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
             }
@@ -330,6 +330,20 @@ public class MainActivity extends AppCompatActivity {
         valueCountedText.setText("0");
         addedText.setText("0");
         totalText.setText("0");
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState){
+        Log.d("axel", "onSaveInstanceState: "+photoPath);
+        outState.putString(BUNDLE_STATE_IMAGE, photoPath);
+        outState.putStringArrayList(BUNDLE_STATE_COUNT, countedList);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceSate){
+
+        countedList = savedInstanceSate.getStringArrayList(BUNDLE_STATE_COUNT);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {

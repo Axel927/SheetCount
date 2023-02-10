@@ -21,4 +21,8 @@
     <string name="finish">Terminer</string>
     <string name="totalText">Total : </string>
     <string name="totalSheetText">0</string>
+    <string name="finishTitle">Terminer de compter</string>
+    <string name="finishText">Êtes-vous sûr de vouloir terminer de compter ?\nCette action est irréversible.</string>
+    <string name="finishPositiveButton">Terminer</string>
+    <string name="finishNegativeButton">Annuler</string>
 </resources>
