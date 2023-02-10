@@ -67,11 +67,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int BACK_TAKE_PICTURE = 1;
     private static final int BACK_CHOOSE_PICTURE = 2;
     private static final int SUMMARY_ACTIVITY_REQUEST_CODE = 3;
-    private static final String BUNDLE_STATE_IMAGE = "BUNDLE_STATE_IMAGE";
     private static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
-    private static ArrayList<String> countedList;
+    private static ArrayList<String> countedList = new ArrayList<>();
     private FindSheets findSheets;
 
     /**
@@ -82,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        Log.d("axel", "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-        countedList = new ArrayList<>();
     }
 
     @Override
@@ -144,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, BACK_CHOOSE_PICTURE);
     }
 
-    public static List<String> getCountedList(){
+    public static ArrayList<String> getCountedList(){
         return countedList;
     }
 
@@ -193,6 +192,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             switch (requestCode){
+                case SUMMARY_ACTIVITY_REQUEST_CODE:
+                    countedList = data.getStringArrayListExtra(SummaryActivity.BUNDLE_STATE_COUNT);
+                    Log.d("axel", "onActivityResult: "+countedList);
+                    break;
+
                 case BACK_TAKE_PICTURE:
                     // When a picture has just been taken
 
@@ -334,15 +338,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState){
-        Log.d("axel", "onSaveInstanceState: "+photoPath);
-        outState.putString(BUNDLE_STATE_IMAGE, photoPath);
         outState.putStringArrayList(BUNDLE_STATE_COUNT, countedList);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceSate){
-
         countedList = savedInstanceSate.getStringArrayList(BUNDLE_STATE_COUNT);
     }
 

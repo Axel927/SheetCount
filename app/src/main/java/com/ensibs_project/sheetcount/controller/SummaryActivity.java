@@ -11,6 +11,7 @@ import static java.lang.Integer.parseInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +32,8 @@ public class SummaryActivity extends AppCompatActivity {
     private Button backButton, finishButton;
     private TextView totalCount;
     private ListView listView;
+
+    public static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +92,16 @@ public class SummaryActivity extends AppCompatActivity {
      * Go back to main
      */
     private void backToMain(){
-        Intent intent = new Intent(SummaryActivity.this, MainActivity.class);
-        startActivity(intent);
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra(BUNDLE_STATE_COUNT, MainActivity.getCountedList());
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Intent mainActivityIntent = new Intent(SummaryActivity.this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 }
