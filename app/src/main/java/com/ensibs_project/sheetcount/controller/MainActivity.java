@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -84,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        Log.d("axel", "onCreate: ");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         summaryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                countedList.add(totalText.getText().toString());
+                if(!totalText.getText().toString().equals("0")) countedList.add(totalText.getText().toString());
                 Intent summaryActivityIntent = new Intent(MainActivity.this, SummaryActivity.class);
                 startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
             }
@@ -200,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
             switch (requestCode){
                 case SUMMARY_ACTIVITY_REQUEST_CODE:
                     countedList = data.getStringArrayListExtra(SummaryActivity.BUNDLE_STATE_COUNT);
-                    Log.d("axel", "onActivityResult: "+countedList);
                     break;
 
                 case BACK_TAKE_PICTURE:
@@ -248,32 +248,30 @@ public class MainActivity extends AppCompatActivity {
                         InputStream is;
                         OutputStream os;
 
-                        try {
-                            is = new FileInputStream(imgDecodableString);
-                            os = new FileOutputStream(photoFile);
-                            byte[] buffer = new byte[1024];
-                            int len;
-                            while ((len = is.read(buffer)) > 0) {
-                                os.write(buffer, 0, len);
-                            }
-                            is.close();
-                            os.close();
+                        is = new FileInputStream(imgDecodableString);
+                        os = new FileOutputStream(photoFile);
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = is.read(buffer)) > 0) {
+                            os.write(buffer, 0, len);
                         }
-                        catch(IOException e){
-                            e.printStackTrace();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        is.close();
+                        os.close();
 
-                    // Define the image in ImageView after decoding of the string
-                    //imageViewer.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                    try {
+                        // Define the image in ImageView after decoding of the string
+                        // imageViewer.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
                         imageViewer.setImageBitmap(BitmapFactory.decodeFile(findSheets.processImage(photoPath)));
                         valueCountedText.setText(String.valueOf(findSheets.getCount()));
                         refreshCount();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch(Exception e){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(getString(R.string.errorImportTitle)).setMessage(R.string.errorImportText)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        closeContextMenu();
+                                    }
+                                }).create().show();
                     }
                     break;
             }

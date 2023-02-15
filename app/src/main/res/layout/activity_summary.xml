@@ -66,19 +66,23 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="385dp"
-            android:layout_height="59dp"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center|bottom"
+            android:layout_weight="1"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/backBtn"
                 android:layout_width="140dp"
                 android:layout_height="60dp"
-                android:layout_marginStart="8dp"
+                android:layout_weight="0"
+                android:layout_marginStart="16dp"
                 android:backgroundTint="#193BEC"
                 android:text="@string/back"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:ignore="NestedWeights" />
 
             <Space
                 android:layout_width="0dp"
@@ -88,8 +92,9 @@
             <Button
                 android:id="@+id/finishBtn"
                 android:layout_width="140dp"
+                android:layout_weight="0"
                 android:layout_height="60dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="16dp"
                 android:backgroundTint="#193BEC"
                 android:text="@string/finish"
                 android:textSize="16sp" />

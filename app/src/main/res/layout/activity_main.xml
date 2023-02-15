@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -178,7 +179,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="350dp"
-        android:layout_height="300dp"
+        android:layout_height="350dp"
         android:layout_gravity="center"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="2dp"
@@ -190,72 +191,82 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="4dp"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:gravity="center|bottom"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/takePictBtn"
-            android:layout_width="140dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="0dp"
-            android:backgroundTint="#193BEC"
-            android:text="@string/takePict"
-            android:textSize="16sp" />
-
-        <Space
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/nextBtn"
-            android:layout_width="120dp"
-            android:layout_height="60dp"
-            android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="0dp"
-            android:backgroundTint="#193BEC"
-            android:text="@string/next"
-            android:textSize="16sp"
-            tools:ignore="RtlHardcoded" />
+            <Button
+                android:id="@+id/takePictBtn"
+                android:layout_width="140dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="0dp"
+                android:backgroundTint="#193BEC"
+                android:text="@string/takePict"
+                android:textSize="16sp" />
 
-    </LinearLayout>
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/nextBtn"
+                android:layout_width="120dp"
+                android:layout_height="60dp"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginRight="0dp"
+                android:backgroundTint="#193BEC"
+                android:text="@string/next"
+                android:textSize="16sp"
+                tools:ignore="RtlHardcoded" />
 
-        <Button
-            android:id="@+id/galleryBtn"
-            android:layout_width="140dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center_vertical"
-            android:backgroundTint="#193BEC"
-            android:text="@string/choosePict"
-            android:textSize="16sp" />
+        </LinearLayout>
 
-        <Space
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/summaryBtn"
-            android:layout_width="120dp"
-            android:layout_height="60dp"
-            android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="0dp"
-            android:backgroundTint="#193BEC"
-            android:text="@string/summary"
-            android:textSize="16sp"
-            tools:ignore="RtlHardcoded" />
+            <Button
+                android:id="@+id/galleryBtn"
+                android:layout_width="140dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:backgroundTint="#193BEC"
+                android:text="@string/choosePict"
+                android:textSize="16sp"
+                tools:ignore="NestedWeights" />
 
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/summaryBtn"
+                android:layout_width="120dp"
+                android:layout_height="60dp"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginRight="0dp"
+                android:layout_weight="0"
+                android:backgroundTint="#193BEC"
+                android:text="@string/summary"
+                android:textSize="16sp"
+                tools:ignore="RtlHardcoded" />
+
+        </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

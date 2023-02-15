@@ -25,4 +25,6 @@
     <string name="finishText">Êtes-vous sûr de vouloir terminer de compter ?\nCette action est irréversible.</string>
     <string name="finishPositiveButton">Terminer</string>
     <string name="finishNegativeButton">Annuler</string>
+    <string name="errorImportTitle">Erreur</string>
+    <string name="errorImportText">Une erreur est apparue lors du chargement de l\'image.</string>
 </resources>
