@@ -26,8 +26,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -50,7 +48,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 import com.ensibs_project.sheetcount.model.FindSheets;
 
@@ -338,6 +335,8 @@ public class MainActivity extends AppCompatActivity {
         valueCountedText.setText("0");
         addedText.setText("0");
         totalText.setText("0");
+        imageViewer.setScaleX(1);
+        imageViewer.setScaleY(1);
     }
 
     @Override
