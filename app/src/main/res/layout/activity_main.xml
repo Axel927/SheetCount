@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#C5C1C1"
+    android:background="@color/activity_background"
     android:orientation="vertical"
     tools:context=".controller.MainActivity">
 
@@ -27,8 +27,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginRight="16dp"
-            android:background="#6AC5C1C1"
-            android:backgroundTint="#6AC5C1C1"
+            android:backgroundTint="@color/activity_background"
             android:backgroundTintMode="add"
             android:text="@string/textNumberCounted"
             android:textAlignment="gravity"
@@ -55,10 +54,10 @@
             android:id="@+id/infoBtn"
             android:layout_width="35dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="#5A5956"
+            android:backgroundTint="@color/info_background"
             android:text="@string/information"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:cornerRadius="100dp"
             tools:ignore="TouchTargetSizeCheck" />
@@ -77,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="#C5C1C1"
+            android:background="@color/activity_background"
             android:text="@string/textAdd"
             android:textSize="20sp" />
 
@@ -88,7 +87,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:autofillHints=""
-            android:background="#C5C1C1"
+            android:background="@color/activity_background"
             android:ems="10"
             android:inputType="numberDecimal"
             android:minHeight="48dp"
@@ -114,7 +113,7 @@
                 android:layout_marginBottom="2dp"
                 android:width="16dp"
                 android:height="16dp"
-                android:backgroundTint="#328136"
+                android:backgroundTint="@color/add_background"
                 android:padding="0dp"
                 android:paddingStart="0dp"
                 android:paddingLeft="0dp"
@@ -124,7 +123,7 @@
                 android:paddingBottom="0dp"
                 android:text="@string/plus"
                 android:textAlignment="gravity"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:ignore="TouchTargetSizeCheck" />
@@ -134,11 +133,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="38dp"
                 android:layout_marginTop="2dp"
-                android:backgroundTint="#CD3232"
+                android:backgroundTint="@color/rm_background"
                 android:padding="1dp"
                 android:text="@string/minus"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 tools:ignore="TouchTargetSizeCheck" />
@@ -161,7 +160,7 @@
             android:layout_width="84dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
-            android:background="#C5C1C1"
+            android:background="@color/activity_background"
             android:text="@string/total"
             android:textSize="24sp" />
 
@@ -170,7 +169,7 @@
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#C5C1C1"
+            android:background="@color/activity_background"
             android:text="@string/total_value"
             android:textSize="34sp" />
 
@@ -209,7 +208,7 @@
                 android:layout_width="140dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="0dp"
-                android:backgroundTint="#193BEC"
+                android:backgroundTint="@color/button_background"
                 android:text="@string/takePict"
                 android:textSize="16sp" />
 
@@ -224,7 +223,7 @@
                 android:layout_height="60dp"
                 android:layout_gravity="right|center_vertical"
                 android:layout_marginRight="0dp"
-                android:backgroundTint="#193BEC"
+                android:backgroundTint="@color/button_background"
                 android:text="@string/next"
                 android:textSize="16sp"
                 tools:ignore="RtlHardcoded" />
@@ -245,7 +244,7 @@
                 android:layout_height="60dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="0"
-                android:backgroundTint="#193BEC"
+                android:backgroundTint="@color/button_background"
                 android:text="@string/choosePict"
                 android:textSize="16sp"
                 tools:ignore="NestedWeights" />
@@ -262,7 +261,7 @@
                 android:layout_gravity="right|center_vertical"
                 android:layout_marginRight="0dp"
                 android:layout_weight="0"
-                android:backgroundTint="#193BEC"
+                android:backgroundTint="@color/button_background"
                 android:text="@string/summary"
                 android:textSize="16sp"
                 tools:ignore="RtlHardcoded" />
