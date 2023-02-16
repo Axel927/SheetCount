@@ -23,6 +23,7 @@ import android.content.Context;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -100,7 +101,7 @@ public class FindSheets {
         double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values
         double maxRelativeDifference = 0; //maximum relative difference found
         for (int i=0 ; i<3 ; i++){ //for each colour
-            double relativeDifference = ( src.get(rows,middle)[i] - moy ) / moy; //determine the relative difference
+            double relativeDifference = (double) ( src.get(rows,middle)[i] - moy ) / moy; //determine the relative difference
             if (relativeDifference <0){ //if it's negative
                 relativeDifference *= -1; //multiply it by -1
             }
@@ -162,7 +163,41 @@ public class FindSheets {
         return src; //return the image with the circles
     }
 
-    
+    public List checkHeight(List sections) throws Exception{
+
+        double threshold= 0.5;
+        List listHeight =  new ArrayList();
+        int height;
+        int removedNumbers =0;
+        double relativeDifference;
+        for (int i=0; i < sections.size()/2;i++) { //for each two successive lines
+            height = (parseInt(sections.get(2*i+1).toString()) - parseInt(sections.get(2*i).toString())); //determine the width
+            listHeight.add(height);
+        }
+        List backupListHeight = new ArrayList(listHeight);
+        Collections.sort(backupListHeight);
+        int medianHeight=parseInt(backupListHeight.get(backupListHeight.size()/2).toString());
+        Log.d("height", "checkHeight: "+ medianHeight);
+        Log.d("height", "checkHeight: "+ sections);
+        Log.d("height", "checkHeight: "+ listHeight);
+
+        for (int i=0; i < listHeight.size();i++){
+            height = parseInt(listHeight.get(i).toString());
+            relativeDifference =(double) (height-medianHeight) / medianHeight;
+            Log.d("Leon", "checkHeight: "+ relativeDifference);
+            Log.d("Leon", "checkHeight: "+ height);
+            if (relativeDifference <0){ //if it's negative
+                relativeDifference *= -1; //multiply it by -1
+            }
+            if (threshold < relativeDifference){ //if it's superior to the previous maximum
+                sections.remove(2*i+1-2*removedNumbers);
+                sections.remove(2*i-2*removedNumbers);
+                removedNumbers+=1;
+            }
+        }
+        Log.d("height", "checkHeight: "+ sections);
+        return sections;
+    }
 
     //gaussianBlur blurs the image
 
@@ -189,6 +224,7 @@ public class FindSheets {
         Log.d("Leon", "processImage: " + sections);
         sections = screeningGray(sections,src);
         Log.d("Leon", "processImage: " + sections);
+        sections = checkHeight(sections);
         amountSheets = counting (sections,src); //Determine the amount of sheets
         drawCircles(sections,src); //Draw circles on the sheets
         Imgcodecs.imwrite(file, src); //transform the image into a file
