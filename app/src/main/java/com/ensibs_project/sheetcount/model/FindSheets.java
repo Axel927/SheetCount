@@ -14,6 +14,8 @@ import static org.opencv.imgproc.Imgproc.circle;
 
 import static java.lang.Integer.parseInt;
 
+import android.media.ExifInterface;
+import android.media.Image;
 import android.os.Environment;
 import android.util.Log;
 import android.content.Context;
@@ -33,234 +35,164 @@ import org.opencv.imgproc.Imgproc;
 
 public class FindSheets {
 
-    private int amountSheets;
+    private int amountSheets; //amount of sheets counted
+
+    //getCount() returns the number of sheets that have been counted
 
     public int getCount(){
         return amountSheets;
     }
 
-    public static String drawContours(String file) throws Exception {
+    //screeningBlack checks the middle of the picture and where there are black lines
 
-        //Loading the OpenCV core library
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        Mat src = Imgcodecs.imread(file);
-        //Converting the source image to binary
-        Mat gray = new Mat(src.rows(), src.cols(), src.type());
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
-        Mat binary = new Mat(src.rows(), src.cols(), src.type(), new Scalar(0));
-        Imgproc.threshold(gray, binary, 100, 255, Imgproc.THRESH_BINARY_INV);
-        //Finding Contours
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(binary, contours, hierarchy, Imgproc.RETR_TREE,
-                Imgproc.CHAIN_APPROX_SIMPLE);
-        //Drawing the Contours
-        Scalar color = new Scalar(0, 0, 255);
-        Imgproc.drawContours(src, contours, -1, color, 2, LINE_8,
-                hierarchy, 2, new Point() ) ;
-
-        boolean r = Imgcodecs.imwrite(file, src);
-        Log.d("Axel", "drawContours: "+r);
-        return file;
-    }
-
-    public static String houghLines(String file) throws Exception {
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        Mat src = Imgcodecs.imread(file);
-        //Converting the image to Gray
-        Mat gray = new Mat();
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGBA2GRAY);
-        //Detecting the edges
-        Mat edges = new Mat();
-        Imgproc.Canny(gray, edges, 40, 40*3, 3, false);
-        // Changing the color of the canny
-        Mat cannyColor = new Mat();
-        Imgproc.cvtColor(edges, cannyColor, Imgproc.COLOR_GRAY2BGR);
-        //Detecting the hough lines from (canny)
-        Mat lines = new Mat();
-        Imgproc.HoughLines(edges, lines, 1, Math.PI/180, 150);
-        for (int i = 0; i < lines.rows(); i++) {
-            double[] data1 = lines.get(i, 0);
-            double rho = data1[0];
-            double theta = data1[1];
-            double a = Math.cos(theta);
-            double b = Math.sin(theta);
-            double x0 = a*rho;
-            double y0 = b*rho;
-            //Drawing lines on the image
-            Point pt1 = new Point();
-            Point pt2 = new Point();
-            pt1.x = Math.round(x0 + 1000*(-b));
-            pt1.y = Math.round(y0 + 1000*(a));
-            pt2.x = Math.round(x0 - 1000*(-b));
-            pt2.y = Math.round(y0 - 1000 *(a));
-            Imgproc.line(edges, pt1, pt2, new Scalar(0, 0, 255), 3);
-        }
-        boolean r = Imgcodecs.imwrite(file, edges);
-        Log.d("Axel", "houghLines: "+r);
-        return file;
-    }
-    public static String houghLinesP(String file) throws Exception {
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        Mat src = Imgcodecs.imread(file);
-        //Converting the image to Gray
-        Mat gray = new Mat();
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGBA2GRAY);
-        //Detecting the edges
-        Mat edges = new Mat();
-        Imgproc.Canny(gray, edges, 40, 40*3, 3, false);
-        // Changing the color of the canny
-        Mat cannyColor = new Mat();
-        Imgproc.cvtColor(edges, cannyColor, Imgproc.COLOR_GRAY2BGR);
-        //Detecting the hough lines from (canny)
-        Mat lines = new Mat();
-        Imgproc.HoughLinesP(edges, lines, 1, Math.PI/180, 150);
-        for (int i = 0; i < lines.cols(); i++) {
-            double[] val = lines.get(0, i);
-            Imgproc.line(src, new Point(val[0], val[1]), new Point(val[2], val[3]), new Scalar(0, 0, 255), 2);
-        }
-        boolean r = Imgcodecs.imwrite(file, src);
-        Log.d("Axel", "houghLines: "+r);
-        return file;
-    }
-
-    public static List screening(Mat src) throws Exception{
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        int middle = src.cols()/2;
-        double[] red =new double[3];
-        red[0]=0;
-        red[1]=0;
-        red[2]=255;
-        boolean successiveRed = false;
-        src.get(0,0,red);
-        List sections =  new ArrayList();
-        for (int i =0; i < src.rows(); i++){
-            if (src.get(i,middle)==red && !successiveRed){
-                sections.add(i);
-                successiveRed = true;
-            }
-            else{
-                successiveRed = false;
-            }
-        }
-        return sections;
-    }
     public static List screeningBlack(Mat src) throws Exception{
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        int middle = src.cols()/2;
-        boolean successiveBlack = false;
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //give access to opencv
+        int middle = src.cols()/2; //middle of the image
+        boolean successiveBlack = false; //True if the previous detected colour was black else false
+        int previousLine = 0;
         String black = "black";
-        List sections =  new ArrayList();
-        for (int i =0; i < src.rows(); i++){
-            if (checkColour(i,src,black) && !successiveBlack){
-                sections.add(i);
-                successiveBlack = true;
+        List sections =  new ArrayList(); //List containing the position of the black lines
+        for (int i =0; i < src.rows(); i++){ //for each pixel in the middle of the image
+            if (checkColour(i,src,black) && !successiveBlack){ //if the pixel is black and the previous pixel was not black
+                if (previousLine != 0) {
+                    sections.add(previousLine);
+                    sections.add(i); //add the position to the list
+                }
+                successiveBlack = true; //the previous pixel is now remembered as black
+                previousLine = i;
             }
-            else if (!checkColour(i,src,black)){
-                successiveBlack = false;
+            else if (!checkColour(i,src,black)){ //if the pixel is not black
+                successiveBlack = false; //the previous pixel is no longer remembered as black
             }
         }
-        return sections;
+        return sections; //return the list
     }
-    public static int counting(List sections, Mat src) throws Exception{
-        int amountSheet=0;
-        int middle = src.cols()/2;
-        int center;
-        for (int i=0; i < sections.size() -1;i++){
-            center = (parseInt(sections.get(i).toString())+ parseInt(sections.get(i+1).toString()))/2;
-            if (checkColour(center, src, "gray")){
-                amountSheet+=1;
-            }
-        }
 
-        return amountSheet;
+    public static List screeningGray(List sections,Mat src) throws Exception{
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //give access to opencv
+        int center; //center of two black lines
+        for (int i =0; i < sections.size()/2; i++){ //for each pixel in the middle of the image
+            center = (parseInt(sections.get(2*i).toString())+ parseInt(sections.get(2*i+1).toString()))/2; //determine the center of the two lines
+            if (!checkColour(center,src,"gray")) {
+                sections.remove(2*i+1);
+                sections.remove(2*i);
+            }
+        }
+        return sections; //return the list
     }
+
+    //counting counts the amount of sheets among the list of suspected positions
+
+    public static int counting(List sections, Mat src) throws Exception{
+        int amountSheet=sections.size()/2; //reinitialize the amount of sheets
+
+        return amountSheet; //return the amount of sheets
+    }
+
+    //checkColour checks if a pixel is gray, black or another color
 
     public static boolean checkColour(int rows, Mat src, String color){
-        double relativeThreshold = 0.35;
-        int grayThreshold = 115;
-        int blackThreshold = 115;
+        double relativeThreshold = 0.20; //allowed relative difference between the RGB values of a pixel and their average
+        int grayThreshold = 140; //threshold under which a pixel is considered gray
+        int blackThreshold = 115; //threshold over which a pixel is considered black
 
-        int middle = src.cols()/2;
-        double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3;
-        double maxRelativeDifference = 0;
-        for (int i=0 ; i<3 ; i++){
-            double relativeDifference = ( src.get(rows,middle)[i] - moy ) / moy;
-            if (relativeDifference <0){
-                relativeDifference *= -1;
+        int middle = src.cols()/2; //middle of the image
+        double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values
+        double maxRelativeDifference = 0; //maximum relative difference found
+        for (int i=0 ; i<3 ; i++){ //for each colour
+            double relativeDifference = ( src.get(rows,middle)[i] - moy ) / moy; //determine the relative difference
+            if (relativeDifference <0){ //if it's negative
+                relativeDifference *= -1; //multiply it by -1
             }
-            if (maxRelativeDifference<relativeDifference){
-                maxRelativeDifference = relativeDifference;
+            if (maxRelativeDifference<relativeDifference){ //if it's superior to the previous maximum
+                maxRelativeDifference = relativeDifference; //it's the new maximum
             }
         }
-        if (maxRelativeDifference < relativeThreshold && color == "black" && moy <blackThreshold){
+        if (maxRelativeDifference < relativeThreshold && color == "black" && moy <blackThreshold){ //if you are looking for black and the thresholds for black are met
             return true;
         }
-        if (maxRelativeDifference < relativeThreshold && color == "gray" && moy >grayThreshold){
+        if (maxRelativeDifference < relativeThreshold && color == "gray" && moy >grayThreshold){ //if you are looking for gray and the thresholds for gray are met
             return true;
         }
         return false;
     }
 
+    //drawCircles draw circles on the counted sheets
+
     public static Mat drawCircles(List sections, Mat src) throws Exception {
 
-        int middle = src.cols()/2;
-        int maxWidth = 200;
-        int Width;
-        int center;
-        boolean oddCircle = false;
+        int middle = src.cols()/2; //middle of the image
+        int maxWidth = 200; //maximum size of a circle
+        int width; //width of a circle
+        int center; //position of a circle
+        boolean oddCircle = false; //if it is a an odd or even numbered circle to choose the colour
 
-        for (int i=0; i < sections.size() - 1;i++){
-            Width = (parseInt(sections.get(i+1).toString()) - parseInt(sections.get(i).toString()))/2;
-            center = (parseInt(sections.get(i).toString()) + parseInt(sections.get(i+1).toString()))/2;
-            if (Width < maxWidth && checkColour(center, src, "gray") && Width > 5){
-                maxWidth = Width;
+        for (int i=0; i < sections.size()/2;i++){ //for each two successive lines
+            width = (parseInt(sections.get(2*i+1).toString()) - parseInt(sections.get(2*i).toString()))/2; //determine the width
+            Log.d("Leon", "drawCircles: "+ Integer.toString(width));
+            center = (parseInt(sections.get(2*i).toString()) + parseInt(sections.get(2*i+1).toString()))/2; //and position
+            if (width < maxWidth && width > 5){ //if the width is inferior to the maxWidth and inferior to the minWidth
+                maxWidth = width; //Width becomes maxWidth
             }
         }
+        Log.d("Leon", "drawCircles: "+ Integer.toString(maxWidth));
+        for (int i=0; i < sections.size()/2;i++){ //for each two successive lines
 
-        for (int i=0; i < sections.size() - 1;i++){
-
-            center = (parseInt(sections.get(i).toString())+ parseInt(sections.get(i+1).toString()))/2;
-            if (checkColour(center, src, "gray")) {
-                Point point = new Point((int) middle, (int) center);
-                if (!oddCircle){
-                    circle(src,
-                            point,
-                            maxWidth,
-                            new Scalar(0, 0, 255),
-                            FILLED,
-                            LINE_8);
-                    oddCircle = true;
+            center = (parseInt(sections.get(2*i).toString())+ parseInt(sections.get(2*i+1).toString()))/2; //determine the center
+            Point point = new Point((int) middle, (int) center); //coordinate of the center
+            if (!oddCircle){ //if it's an even circle
+                circle(src, //create a red circle
+                        point,
+                        maxWidth,
+                        new Scalar(0, 0, 255),
+                        FILLED,
+                        LINE_8);
+                oddCircle = true; //the next circle is odd
                 }
-                else {
-                    circle(src,
-                            point,
-                            maxWidth,
-                            new Scalar(0, 255, 0),
-                            FILLED,
-                            LINE_8);
-                    oddCircle = false;
+            else { //if it's an odd circle
+                circle(src, //create a green circle
+                        point,
+                        maxWidth,
+                        new Scalar(0, 255, 0),
+                        FILLED,
+                        LINE_8);
+                oddCircle = false; //the next circle is even
                 }
             }
-        }
+        return src; //return the image with the circles
+    }
+
+    
+
+    //gaussianBlur blurs the image
+
+    public Mat gaussianBlur(Mat src) throws Exception {
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
+        Imgproc.GaussianBlur(src,src,new Size(15,15),0); //use the gaussian blur while taking into account the pixel in a 15*15 area around each pixel
         return src;
     }
 
-    public Mat gaussianBlur(Mat src) throws Exception {
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        Imgproc.GaussianBlur(src,src,new Size(15,15),0);
+    public Mat medianBlur (Mat src) throws Exception{
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
+        Imgproc.medianBlur(src,src,5); //use the gaussian blur while taking into account the pixel in a 15*15 area around each pixel
         return src;
     }
 
     public String processImage(String file) throws Exception {
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
-        Mat src = Imgcodecs.imread(file);
-        gaussianBlur(src);
-        List sections = screeningBlack(src);
-        amountSheets = counting (sections,src);
-        drawCircles(sections,src);
-        Imgcodecs.imwrite(file, src);
-        return file;
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
+        Mat src = Imgcodecs.imread(file); //get  the image
+        ExifInterface exif = new ExifInterface(file);
+     
+
+        //medianBlur(src); //blur it
+        List sections = screeningBlack(src); //find the sections
+        Log.d("Leon", "processImage: " + sections);
+        sections = screeningGray(sections,src);
+        Log.d("Leon", "processImage: " + sections);
+        amountSheets = counting (sections,src); //Determine the amount of sheets
+        drawCircles(sections,src); //Draw circles on the sheets
+        Imgcodecs.imwrite(file, src); //transform the image into a file
+        return file; //return the file
     }
 
 
