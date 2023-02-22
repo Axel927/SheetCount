@@ -10,7 +10,7 @@
     tools:context=".controller.MainActivity">
 
     <LinearLayout
-        android:layout_width="364dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginLeft="16dp"
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:background="#C5C1C1"
+            android:background="@color/activity_background"
             android:text="@string/valueCounted"
             android:textSize="24sp"
             android:translationY="-16dp" />
@@ -175,22 +175,22 @@
 
     </LinearLayout>
 
-    <ImageView
+
+    <WebView
         android:id="@+id/imageView"
-        android:layout_width="350dp"
-        android:layout_height="350dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_gravity="center"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="2dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="0dp"
-        android:contentDescription="@string/image_viewer"
-        android:translationZ="-10dp"
-        app:srcCompat="@drawable/launch_image" />
+        android:layout_marginBottom="4dp"
+        android:layout_weight="6"
+        android:backgroundTint="@color/activity_background" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="55dp"
         android:layout_weight="2"
         android:gravity="center|bottom"
         android:orientation="vertical">

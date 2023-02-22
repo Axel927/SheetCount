@@ -26,6 +26,6 @@
     <string name="finishPositiveButton">Terminer</string>
     <string name="finishNegativeButton">Annuler</string>
     <string name="errorImportTitle">Erreur</string>
-    <string name="errorImportText">Une erreur est apparue lors du chargement de l\'image.</string>
+    <string name="errorImportText">Une erreur est apparue lors du chargement de l\'image :\n</string>
     <string name="splash_image">splash_image</string>
 </resources>

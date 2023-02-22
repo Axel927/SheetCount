@@ -13,19 +13,14 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,17 +36,15 @@ import com.ensibs_project.sheetcount.model.FindSheets;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Class for the activity to count the sheets
  */
 public class MainActivity extends AppCompatActivity {
-    private ImageView imageViewer;
+    private WebView imageViewer;
     private String photoPath;
     private TextView valueCountedText;
     private EditText addedText;
@@ -59,9 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int BACK_TAKE_PICTURE = 1;
     private static final int BACK_CHOOSE_PICTURE = 2;
     private static final int SUMMARY_ACTIVITY_REQUEST_CODE = 3;
+    private static final String IMAGE_VIEWED = "file:///android_res/drawable/launch_image.png";
     private static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
-    private ScaleGestureDetector scaleGestureDetector;
-    private float scaleFactor = 1.0f;
     private static ArrayList<String> countedList = new ArrayList<>();
     private FindSheets findSheets;
 
@@ -70,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
      * @param savedInstanceState Allow to get data back after destroy
      */
     @SuppressWarnings("deprecation")
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "MissingInflatedId"})
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -78,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         findSheets = new FindSheets();
+        File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // Create/load a file
+        File photoFile = new File(photoDir.toString() + "/sheetCountPlotImage.jpg");
+        // Saving of the full path
+        photoPath = photoFile.getAbsolutePath();
 
         // Get the ids
         Button pictureButton = findViewById(R.id.takePictBtn);
@@ -107,7 +104,14 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
         });
 
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
+        // Define the properties of the imageViewer
+        imageViewer.getSettings().setBuiltInZoomControls(true);
+        imageViewer.getSettings().setUseWideViewPort(true);
+        imageViewer.getSettings().setDisplayZoomControls(false);
+        imageViewer.setBackgroundColor(getResources().getColor(R.color.activity_background));
+        imageViewer.getSettings().setAllowFileAccess(true);
+        imageViewer.loadUrl(IMAGE_VIEWED);
+        imageViewer.setInitialScale(1);
 
         // To set the permissions
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -120,21 +124,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when the screen is touched
-     * @param motionEvent Contains information about the move
-     * @return always true
-     */
-    @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        scaleGestureDetector.onTouchEvent(motionEvent);
-        return true;
-    }
-
-    /**
      * Function called to choose a picture in the gallery.
      */
     @SuppressWarnings("deprecation")
     private void choosePicture(){
+        addedText.setText("0");
         Intent intent = new Intent(Intent.ACTION_PICK);
 
         // Define thee type as image/*.
@@ -161,31 +155,18 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void takePicture(){
+        addedText.setText("0");
         // Creation of a window to take a picture
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Creation of the URI
+        Uri photoUri = FileProvider.getUriForFile(MainActivity.this,
+                MainActivity.this.getApplicationContext().getPackageName() + ".provider", new File(photoPath));
 
-        // Creation of an unique filename
-        @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("yyyMMdd_hhmmss").format(new Date());
-        File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // Transfer URI to the intent to save the picture in a temp file
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
-        try {
-            File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);  // Create a temporary file
-
-            // Saving of the full path
-            photoPath = photoFile.getAbsolutePath();
-
-            // Creation of the URI
-            Uri photoUri = FileProvider.getUriForFile(MainActivity.this,
-                    MainActivity.this.getApplicationContext().getPackageName() + ".provider", photoFile);
-
-            // Transfer URI to the intent to save the picture in a temp file
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-
-            // Open the activity
-            startActivityForResult(intent, BACK_TAKE_PICTURE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Open the activity
+        startActivityForResult(intent, BACK_TAKE_PICTURE);
     }
 
     /**
@@ -205,12 +186,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case BACK_TAKE_PICTURE:  // When a picture has just been taken
-                    Bitmap image;
                     try {
-                        image = BitmapFactory.decodeFile(findSheets.processImage(photoPath));  // Convert the image to bitmap
+                        imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
+                        imageViewer.setInitialScale(1);
                         valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
                         refreshCount();
-                        imageViewer.setImageBitmap(image);  // Print the image
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -230,19 +211,12 @@ public class MainActivity extends AppCompatActivity {
                     String imgDecodableString = cursor.getString(columnIndex);
                     cursor.close();
 
-                    // Creation of an unique filename
-                    @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("yyyMMdd_hhmmss").format(new Date());
-                    File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                     try {
-                        File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
-
-                        photoPath = photoFile.getAbsolutePath();  // Saving of the full path
-
                         InputStream is;
                         OutputStream os;
 
                         is = new FileInputStream(imgDecodableString);
-                        os = new FileOutputStream(photoFile);
+                        os = new FileOutputStream(photoPath);
                         byte[] buffer = new byte[1024];
                         int len;
                         while ((len = is.read(buffer)) > 0) {
@@ -251,20 +225,22 @@ public class MainActivity extends AppCompatActivity {
                         is.close();
                         os.close();
 
-                        // Define the image in ImageView after decoding of the string
-                        // imageViewer.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                        imageViewer.setImageBitmap(BitmapFactory.decodeFile(findSheets.processImage(photoPath)));
+                        // Define the image in ImageView and count the sheets
+                        imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));
+                        imageViewer.setInitialScale(1);
                         valueCountedText.setText(String.valueOf(findSheets.getCount()));
                         refreshCount();
                     } catch(Exception e){
+                        e.printStackTrace();
                         // Print a popup if an error occurred
                         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle(getString(R.string.errorImportTitle)).setMessage(R.string.errorImportText)
+                        builder.setTitle(getString(R.string.errorImportTitle)).setMessage(getResources().getString(R.string.errorImportText) + e)
                                 .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
                     }
                     break;
             }
         }
+        else countedList = new ArrayList<>();
     }
 
     /**
@@ -318,8 +294,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("UseCompatLoadingForDrawables")
     protected void nextCount(){
-        countedList.add(totalText.getText().toString());  // Add the value
-        imageViewer.setImageDrawable(getDrawable(R.drawable.launch_image));  // Reset image
+        if(!totalText.getText().toString().equals("0")) countedList.add(totalText.getText().toString());  // Add the value
+        imageViewer.loadUrl(IMAGE_VIEWED);
+        imageViewer.setInitialScale(1);
         // Reset texts
         valueCountedText.setText("0");
         addedText.setText("0");
@@ -345,21 +322,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceSate){
+        super.onRestoreInstanceState(savedInstanceSate);
         countedList = savedInstanceSate.getStringArrayList(BUNDLE_STATE_COUNT);
-    }
-
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        /**
-         * Class to change the scale of the image.
-         */
-        @Override
-        public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-            scaleFactor *= scaleGestureDetector.getScaleFactor();
-            scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f));
-            // Resize
-            imageViewer.setScaleX(scaleFactor);
-            imageViewer.setScaleY(scaleFactor);
-            return true;
-        }
     }
 }
