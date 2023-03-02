@@ -45,6 +45,7 @@
             android:name=".controller.SummaryActivity"
             android:exported="false"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden"
             tools:ignore="LockedOrientationActivity">
             <meta-data
                 android:name="android.app.lib_name"
@@ -54,6 +55,7 @@
             android:name=".controller.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden"
             tools:ignore="LockedOrientationActivity">
             <meta-data
                 android:name="android.app.lib_name"

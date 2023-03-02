@@ -31,4 +31,12 @@
     <string name="about_button">À propos</string>
     <string name="about_title">À propose de SheetCount</string>
     <string name="about_text">SheetCount V%1$s\n© %2$d\n\nApplication développée par Léon Collén et Axel Trémaudant, étudiants à l\'ENSIBS.\nLe code de l\'application est disponible à ce lien : https://github.com/Axel927/SheetCount</string>
+    <string name="photo_name_title">Nom de la photo</string>
+    <string name="photo_name_text">Écrire le nom de la photo</string>
+    <string name="photo_name_positive_btn">Valider</string>
+    <string name="photo_name_negative_btn">Annuler</string>
+    <string name="photo_default_name">"Photo "</string>
+    <string name="photo_name_separator">" : "</string>
+    <string name="name_count_title">Nombre de tôles comptées</string>
+    <string name="name_count_text">%1$d tôles ont été comptées avec le nom : %2$s.</string>
 </resources>

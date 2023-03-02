@@ -2,7 +2,9 @@
 
 # SheetCount
  
-TODO: ///////////////// Image app ///////////////////////////
+<p align="center">
+<img src="https://user-images.githubusercontent.com/77966063/222445161-5da04913-74b2-4a83-86d9-52e760e71290.jpg" alt="drawing" height="500">
+</p>
 
 ## Table of contents
 

@@ -1,7 +1,16 @@
 /**
- * © 2023 Collen Leon and Tremaudant Axel
- *
  * This file contains the class MainActivity which print the image and deal with everything to count the sheets.
+ * Copyright © 2023  Collen Leon and Tremaudant Axel
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
  */
 
 package com.ensibs_project.sheetcount.controller;
@@ -10,6 +19,7 @@ import static java.lang.Integer.parseInt;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int BACK_TAKE_PICTURE = 1;
     private static final int BACK_CHOOSE_PICTURE = 2;
     private static final int SUMMARY_ACTIVITY_REQUEST_CODE = 3;
-    private static final String IMAGE_VIEWED = "file:///android_res/drawable/launch_image.png";
+    private static final String IMAGE_VIEWED = "file:///android_res/drawable/launch_image.jpg";
     private static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
     private static ArrayList<String> countedList = new ArrayList<>();
     private FindSheets findSheets;
@@ -61,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
      * Called at the start of the app after the splashActivity
      * @param savedInstanceState Allow to get data back after destroy
      */
-    @SuppressWarnings("deprecation")
     @SuppressLint({"ClickableViewAccessibility", "MissingInflatedId"})
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -96,12 +106,10 @@ public class MainActivity extends AppCompatActivity {
         rmSheetButton.setOnClickListener(view -> removeSheet());
         addedText.setOnEditorActionListener((textView, i, keyEvent) -> modifySheet());
         informationButton.setOnClickListener(view -> info());
-        nextButton.setOnClickListener(view -> nextCount());
+        nextButton.setOnClickListener(view -> nextCount(false));
         summaryButton.setOnClickListener(view -> {  // Go to the summary activity
             // Add the value if count != 0
-            if(!totalText.getText().toString().equals("0")) countedList.add(totalText.getText().toString());
-            Intent summaryActivityIntent = new Intent(MainActivity.this, SummaryActivity.class);
-            startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
+            nextCount(true);
         });
 
         // Define the properties of the imageViewer
@@ -303,19 +311,63 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Save the count and go to next photo
+     * @param summary true if we want to get the summary else false
      */
-    @SuppressLint("UseCompatLoadingForDrawables")
-    protected void nextCount(){
-        if(!totalText.getText().toString().equals("0")) countedList.add(totalText.getText().toString());  // Add the value
-        imageViewer.loadUrl(IMAGE_VIEWED);
-        imageViewer.setInitialScale(1);
-        // Reset texts
-        valueCountedText.setText("0");
-        addedText.setText("0");
-        totalText.setText("0");
-        // Reset image dimension
-        imageViewer.setScaleX(1);
-        imageViewer.setScaleY(1);
+    @SuppressWarnings("deprecation")
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+    protected void nextCount(boolean summary){
+        if(!totalText.getText().toString().equals("0")) {
+            // Show a popup to set the name of the image
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle(R.string.photo_name_title);
+            dialog.setMessage(R.string.photo_name_text);
+
+            EditText photoName = new EditText(this);
+            photoName.setText(getString(R.string.photo_default_name) + (countedList.size() + 1));
+            photoName.selectAll();
+            dialog.setView(photoName);
+
+            // Show the keyboard
+            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+            dialog.setPositiveButton(R.string.photo_name_positive_btn, (dialog1, which) -> {
+                countedList.add(photoName.getText().toString().replace(getString(R.string.photo_name_separator), " - ") +
+                        getString(R.string.photo_name_separator) + totalText.getText().toString());  // Add the value
+                closeContextMenu();
+
+                // Reset image
+                imageViewer.loadUrl(IMAGE_VIEWED);
+                imageViewer.setInitialScale(1);
+                // Reset texts
+                valueCountedText.setText("0");
+                addedText.setText("0");
+                totalText.setText("0");
+
+                if(summary){
+                    Intent summaryActivityIntent = new Intent(MainActivity.this, SummaryActivity.class);
+                    startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
+                }
+            });
+
+            dialog.setNegativeButton(R.string.photo_name_negative_btn, (dialog12, which) -> closeContextMenu());
+
+            dialog.show();
+        }
+        else {
+            // Reset image
+            imageViewer.loadUrl(IMAGE_VIEWED);
+            imageViewer.setInitialScale(1);
+            // Reset texts
+            valueCountedText.setText("0");
+            addedText.setText("0");
+            totalText.setText("0");
+
+            if(summary){
+                Intent summaryActivityIntent = new Intent(MainActivity.this, SummaryActivity.class);
+                startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
+            }
+        }
     }
 
     /**
