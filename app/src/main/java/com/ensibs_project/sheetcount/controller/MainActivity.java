@@ -194,53 +194,65 @@ public class MainActivity extends AppCompatActivity {
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
-                    break;
-
-                case BACK_CHOOSE_PICTURE: // When we just have selected a picture
-                    Uri selectedImage = data.getData();
-                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                    // Get the cursor
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    // Move to first line
-                    cursor.moveToFirst();
-                    // Get the column index of MediaStore.Images.Media.DATA
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    // Get the string value in the column
-                    String imgDecodableString = cursor.getString(columnIndex);
-                    cursor.close();
-
-                    try {
-                        InputStream is;
-                        OutputStream os;
-
-                        is = new FileInputStream(imgDecodableString);
-                        os = new FileOutputStream(photoPath);
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = is.read(buffer)) > 0) {
-                            os.write(buffer, 0, len);
-                        }
-                        is.close();
-                        os.close();
-
-                        // Define the image in ImageView and count the sheets
-                        imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));
-                        imageViewer.setInitialScale(1);
-                        valueCountedText.setText(String.valueOf(findSheets.getCount()));
-                        refreshCount();
-                    } catch(Exception e){
-                        e.printStackTrace();
                         // Print a popup if an error occurred
                         AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setTitle(getString(R.string.errorImportTitle)).setMessage(getResources().getString(R.string.errorImportText) + e)
                                 .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
                     }
                     break;
+
+                case BACK_CHOOSE_PICTURE: // When we just have selected a picture
+                    backChoosePicture(data);
+                    break;
             }
         }
-        else countedList = new ArrayList<>();
+        else countedList = new ArrayList<>();  // If the count is finished
+    }
+
+    /**
+     * Function to get a copy of a photo from the gallery and plot it on the screen
+     * @param data Data about the location of the image
+     */
+    private void backChoosePicture(Intent data){
+        Uri selectedImage = data.getData();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        // Get the cursor
+        Cursor cursor = getContentResolver().query(selectedImage,
+                filePathColumn, null, null, null);
+        // Move to first line
+        cursor.moveToFirst();
+        // Get the column index of MediaStore.Images.Media.DATA
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        // Get the string value in the column
+        String imgDecodableString = cursor.getString(columnIndex);
+        cursor.close();
+
+        try {
+            InputStream is;
+            OutputStream os;
+
+            is = new FileInputStream(imgDecodableString);
+            os = new FileOutputStream(photoPath);
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) > 0) {
+                os.write(buffer, 0, len);
+            }
+            is.close();
+            os.close();
+
+            // Define the image in ImageView and count the sheets
+            imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));
+            imageViewer.setInitialScale(1);
+            valueCountedText.setText(String.valueOf(findSheets.getCount()));
+            refreshCount();
+        } catch(Exception e){
+            e.printStackTrace();
+            // Print a popup if an error occurred
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.errorImportTitle)).setMessage(getResources().getString(R.string.errorImportText) + e)
+                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+        }
     }
 
     /**
@@ -280,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Create a popup to give informations
+     * Create a popup to give information
      */
     protected void info(){
         // Print a popup

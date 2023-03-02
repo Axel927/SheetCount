@@ -19,9 +19,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.ensibs_project.sheetcount.BuildConfig;
 import com.ensibs_project.sheetcount.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -43,12 +45,14 @@ public class SummaryActivity extends AppCompatActivity {
         // Get the ids
         Button backButton = findViewById(R.id.backBtn);
         Button finishButton = findViewById(R.id.finishBtn);
+        Button aboutButton = findViewById(R.id.about);
         TextView totalCount = findViewById(R.id.totalCounted);
         ListView listView = findViewById(R.id.photoListView);
 
         // Set the action of the buttons on click
         backButton.setOnClickListener(view -> backToMain());
         finishButton.setOnClickListener(view -> finishCount());
+        aboutButton.setOnClickListener(view -> about());
 
         int totalCounted = 0;
         List<String> list = new ArrayList<>();
@@ -98,5 +102,16 @@ public class SummaryActivity extends AppCompatActivity {
         super.onDestroy();
         Intent mainActivityIntent = new Intent(SummaryActivity.this, MainActivity.class);
         startActivity(mainActivityIntent);
+    }
+
+    /**
+     * Function called when the about button is pressed
+     */
+    private void about(){
+        // Create a popup to show the about information
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.about_title)).setMessage(getString(R.string.about_text, BuildConfig.VERSION_CODE + "." + BuildConfig.VERSION_NAME,
+                        Calendar.getInstance().get(Calendar.YEAR)))
+                .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
     }
 }

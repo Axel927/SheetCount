@@ -52,7 +52,7 @@
 
         <Button
             android:id="@+id/infoBtn"
-            android:layout_width="35dp"
+            android:layout_width="36dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/info_background"
             android:text="@string/information"

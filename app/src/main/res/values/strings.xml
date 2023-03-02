@@ -28,4 +28,7 @@
     <string name="errorImportTitle">Erreur</string>
     <string name="errorImportText">Une erreur est apparue lors du chargement de l\'image :\n</string>
     <string name="splash_image">splash_image</string>
+    <string name="about_button">À propos</string>
+    <string name="about_title">À propose de SheetCount</string>
+    <string name="about_text">SheetCount V%1$s\n© %2$d\n\nApplication développée par Léon Collén et Axel Trémaudant, étudiants à l\'ENSIBS.\nLe code de l\'application est disponible à ce lien : https://github.com/Axel927/SheetCount</string>
 </resources>
