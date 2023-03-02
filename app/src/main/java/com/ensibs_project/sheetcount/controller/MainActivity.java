@@ -324,6 +324,8 @@ public class MainActivity extends AppCompatActivity {
 
             EditText photoName = new EditText(this);
             photoName.setText(getString(R.string.photo_default_name) + (countedList.size() + 1));
+            photoName.requestFocus();
+            photoName.setSelection(photoName.length());
             photoName.selectAll();
             dialog.setView(photoName);
 
