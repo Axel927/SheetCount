@@ -7,32 +7,23 @@
 
 package com.ensibs_project.sheetcount.model;
 
-import static org.opencv.core.CvType.CV_8UC3;
 import static org.opencv.imgproc.Imgproc.FILLED;
 import static org.opencv.imgproc.Imgproc.LINE_8;
 import static org.opencv.imgproc.Imgproc.circle;
-
 import static java.lang.Integer.parseInt;
 
-import android.media.ExifInterface;
-import android.media.Image;
-import android.os.Environment;
 import android.util.Log;
-import android.content.Context;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import java.util.Objects;
 
 public class FindSheets {
 
@@ -46,13 +37,12 @@ public class FindSheets {
 
     //screeningBlack checks the middle of the picture and where there are black lines
 
-    public static List screeningBlack(Mat src) throws Exception{
+    public static void screeningBlack(List<Integer> sections,Mat src) {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //give access to opencv
-        int middle = src.cols()/2; //middle of the image
+        //middle of the image
         boolean successiveBlack = false; //True if the previous detected colour was black else false
         int previousLine = 0;
         String black = "black";
-        List sections =  new ArrayList(); //List containing the position of the black lines
         for (int i =0; i < src.rows(); i++){ //for each pixel in the middle of the image
             if (checkColour(i,src,black) && !successiveBlack){ //if the pixel is black and the previous pixel was not black
                 if (previousLine != 0) {
@@ -66,10 +56,9 @@ public class FindSheets {
                 successiveBlack = false; //the previous pixel is no longer remembered as black
             }
         }
-        return sections; //return the list
     }
 
-    public static List screeningGray(List sections,Mat src) throws Exception{
+    public static void screeningGray(List<Integer> sections,Mat src) {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //give access to opencv
         int center; //center of two black lines
         for (int i =0; i < sections.size()/2; i++){ //for each pixel in the middle of the image
@@ -79,15 +68,13 @@ public class FindSheets {
                 sections.remove(2*i);
             }
         }
-        return sections; //return the list
     }
 
     //counting counts the amount of sheets among the list of suspected positions
 
-    public static int counting(List sections, Mat src) throws Exception{
-        int amountSheet=sections.size()/2; //reinitialize the amount of sheets
+    public static int counting(List<Integer> sections) {
 
-        return amountSheet; //return the amount of sheets
+        return sections.size()/2; //return the amount of sheets
     }
 
     //checkColour checks if a pixel is gray, black or another color
@@ -101,7 +88,7 @@ public class FindSheets {
         double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values
         double maxRelativeDifference = 0; //maximum relative difference found
         for (int i=0 ; i<3 ; i++){ //for each colour
-            double relativeDifference = (double) ( src.get(rows,middle)[i] - moy ) / moy; //determine the relative difference
+            double relativeDifference = ( src.get(rows,middle)[i] - moy ) / moy; //determine the relative difference
             if (relativeDifference <0){ //if it's negative
                 relativeDifference *= -1; //multiply it by -1
             }
@@ -109,18 +96,16 @@ public class FindSheets {
                 maxRelativeDifference = relativeDifference; //it's the new maximum
             }
         }
-        if (maxRelativeDifference < relativeThreshold && color == "black" && moy <blackThreshold){ //if you are looking for black and the thresholds for black are met
+        if (maxRelativeDifference < relativeThreshold && Objects.equals(color, "black") && moy <blackThreshold){ //if you are looking for black and the thresholds for black are met
             return true;
         }
-        if (maxRelativeDifference < relativeThreshold && color == "gray" && moy >grayThreshold){ //if you are looking for gray and the thresholds for gray are met
-            return true;
-        }
-        return false;
+        //if you are looking for gray and the thresholds for gray are met
+        return maxRelativeDifference < relativeThreshold && Objects.equals(color, "gray") && moy > grayThreshold;
     }
 
     //drawCircles draw circles on the counted sheets
 
-    public static Mat drawCircles(List sections, Mat src) throws Exception {
+    public static void drawCircles(List<Integer> sections, Mat src) {
 
         int middle = src.cols()/2; //middle of the image
         int maxWidth = 200; //maximum size of a circle
@@ -130,17 +115,16 @@ public class FindSheets {
 
         for (int i=0; i < sections.size()/2;i++){ //for each two successive lines
             width = (parseInt(sections.get(2*i+1).toString()) - parseInt(sections.get(2*i).toString()))/2; //determine the width
-            Log.d("Leon", "drawCircles: "+ Integer.toString(width));
-            center = (parseInt(sections.get(2*i).toString()) + parseInt(sections.get(2*i+1).toString()))/2; //and position
+            Log.d("Leon", "drawCircles: "+ width);
             if (width < maxWidth && width > 5){ //if the width is inferior to the maxWidth and inferior to the minWidth
                 maxWidth = width; //Width becomes maxWidth
             }
         }
-        Log.d("Leon", "drawCircles: "+ Integer.toString(maxWidth));
+        Log.d("Leon", "drawCircles: "+ maxWidth);
         for (int i=0; i < sections.size()/2;i++){ //for each two successive lines
 
             center = (parseInt(sections.get(2*i).toString())+ parseInt(sections.get(2*i+1).toString()))/2; //determine the center
-            Point point = new Point((int) middle, (int) center); //coordinate of the center
+            Point point = new Point(middle, center); //coordinate of the center
             if (!oddCircle){ //if it's an even circle
                 circle(src, //create a red circle
                         point,
@@ -160,13 +144,12 @@ public class FindSheets {
                 oddCircle = false; //the next circle is even
                 }
             }
-        return src; //return the image with the circles
     }
 
-    public List checkHeight(List sections) throws Exception{
+    public void checkHeight(List<Integer> sections) {
 
         double threshold= 0.5;
-        List listHeight =  new ArrayList();
+        List<Integer> listHeight =  new ArrayList<>();
         int height;
         int removedNumbers =0;
         double relativeDifference;
@@ -174,7 +157,7 @@ public class FindSheets {
             height = (parseInt(sections.get(2*i+1).toString()) - parseInt(sections.get(2*i).toString())); //determine the width
             listHeight.add(height);
         }
-        List backupListHeight = new ArrayList(listHeight);
+        List<Integer> backupListHeight = new ArrayList<>(listHeight);
         Collections.sort(backupListHeight);
         int medianHeight=parseInt(backupListHeight.get(backupListHeight.size()/2).toString());
         Log.d("height", "checkHeight: "+ medianHeight);
@@ -196,36 +179,24 @@ public class FindSheets {
             }
         }
         Log.d("height", "checkHeight: "+ sections);
-        return sections;
     }
 
     //gaussianBlur blurs the image
 
-    public Mat gaussianBlur(Mat src) throws Exception {
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
-        Imgproc.GaussianBlur(src,src,new Size(15,15),0); //use the gaussian blur while taking into account the pixel in a 15*15 area around each pixel
-        return src;
-    }
 
-    public Mat medianBlur (Mat src) throws Exception{
-        System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
-        Imgproc.medianBlur(src,src,5); //use the gaussian blur while taking into account the pixel in a 15*15 area around each pixel
-        return src;
-    }
-
-    public String processImage(String file) throws Exception {
+    public String processImage(String file) {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME ); //load the opencv library
         Mat src = Imgcodecs.imread(file); //get  the image
-        ExifInterface exif = new ExifInterface(file);
-     
+        List<Integer> sections =  new ArrayList<>();
+
 
         //medianBlur(src); //blur it
-        List sections = screeningBlack(src); //find the sections
+        screeningBlack(sections,src); //find the sections
         Log.d("Leon", "processImage: " + sections);
-        sections = screeningGray(sections,src);
+        screeningGray(sections,src);
         Log.d("Leon", "processImage: " + sections);
-        sections = checkHeight(sections);
-        amountSheets = counting (sections,src); //Determine the amount of sheets
+        checkHeight(sections);
+        amountSheets = counting (sections); //Determine the amount of sheets
         drawCircles(sections,src); //Draw circles on the sheets
         Imgcodecs.imwrite(file, src); //transform the image into a file
         return file; //return the file
