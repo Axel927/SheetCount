@@ -104,19 +104,9 @@ public class SummaryActivity extends AppCompatActivity {
     private void backToMain(){
         Intent intent = new Intent();
         // Send back the list of count
-        intent.putStringArrayListExtra(BUNDLE_STATE_COUNT, MainActivity.getCountedList());
+        intent.putStringArrayListExtra(BUNDLE_STATE_COUNT, new ArrayList<>(list));
         setResult(Activity.RESULT_OK, intent);
         finish();
-    }
-
-    /**
-     * Called when the activity is destroy
-     */
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        Intent mainActivityIntent = new Intent(SummaryActivity.this, MainActivity.class);
-        startActivity(mainActivityIntent);
     }
 
     /**
@@ -165,6 +155,7 @@ public class SummaryActivity extends AppCompatActivity {
 
         EditText photoName = new EditText(this);
         photoName.setText(name);
+        photoName.requestFocus();
         photoName.selectAll();
         dialog.setView(photoName);
 
@@ -185,7 +176,6 @@ public class SummaryActivity extends AppCompatActivity {
         dialog.setNegativeButton(R.string.photo_name_negative_btn, (dialog12, which) -> closeContextMenu());
 
         dialog.show();
-
         return true;
     }
 }

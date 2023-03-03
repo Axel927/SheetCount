@@ -34,7 +34,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int BACK_CHOOSE_PICTURE = 2;
     private static final int SUMMARY_ACTIVITY_REQUEST_CODE = 3;
     private static final String IMAGE_VIEWED = "file:///android_res/drawable/launch_image.jpg";
-    private static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
     private static ArrayList<String> countedList = new ArrayList<>();
     private FindSheets findSheets;
 
@@ -325,7 +323,6 @@ public class MainActivity extends AppCompatActivity {
             EditText photoName = new EditText(this);
             photoName.setText(getString(R.string.photo_default_name) + (countedList.size() + 1));
             photoName.requestFocus();
-            photoName.setSelection(photoName.length());
             photoName.selectAll();
             dialog.setView(photoName);
 
@@ -370,25 +367,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(summaryActivityIntent, SUMMARY_ACTIVITY_REQUEST_CODE);
             }
         }
-    }
-
-    /**
-     * Called before the activity is destroyed
-     * @param outState Variable to contain the values
-     */
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState){
-        outState.putStringArrayList(BUNDLE_STATE_COUNT, countedList);
-        super.onSaveInstanceState(outState);
-    }
-
-    /**
-     * Called after the activity has been created
-     * @param savedInstanceSate Variable to get the values back
-     */
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceSate){
-        super.onRestoreInstanceState(savedInstanceSate);
-        countedList = savedInstanceSate.getStringArrayList(BUNDLE_STATE_COUNT);
     }
 }
