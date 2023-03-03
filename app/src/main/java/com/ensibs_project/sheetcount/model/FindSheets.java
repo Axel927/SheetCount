@@ -247,7 +247,12 @@ public class FindSheets {
         }
         List<Integer> backupListHeight = new ArrayList<>(listHeight);           //Create a new list identical to listHeight
         Collections.sort(backupListHeight);                                     //Sort the new height
-        int medianHeight=parseInt(backupListHeight.get(backupListHeight.size()/2).toString()); //get the median from the middle of the sorted list
+        int medianHeight = 0;
+        try{
+            medianHeight=parseInt(backupListHeight.get(backupListHeight.size()/2).toString()); //get the median from the middle of the sorted list
+        } catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+        }
         Log.d("height", "checkHeight: "+ medianHeight);
         Log.d("height", "checkHeight: "+ sections);
         Log.d("height", "checkHeight: "+ listHeight);
