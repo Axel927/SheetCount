@@ -88,6 +88,15 @@ public class FindSheets {
         }
     }
 
+    public void screeningColor(List<Integer> sections,Mat src, String color){
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );                         //give access to opencv
+        for (int i =0; i < sections.size()/2; i++){                             //for each pixel in the middle of the image
+            if (!checkAverageColor(sections.get(2*i),sections.get(2*i+1),src,color)) {                        //if the pixel is not gray
+                sections.remove(2*i+1);                                      //remove the top of the sheet from the list
+                sections.remove(2*i);                                        //remove the bottom of the sheet from the list
+            }
+        }
+    }
     /**
      * counting counts the amount of detected sheets
      * @param sections List of detected sheets
@@ -128,6 +137,51 @@ public class FindSheets {
         return maxRelativeDifference < relativeThreshold && Objects.equals(color, "gray") && moy > grayThreshold;
     }
 
+    public boolean checkAverageColor(int bottomRows, int topRows, Mat src, String color){
+        double relativeThreshold = 0.3;                                        //allowed relative difference between the RGB values of a pixel and their average
+        int grayThreshold = 50;                                                //threshold under which a pixel is considered gray
+
+        int middle = src.cols()/2;                                              //middle of the image
+        double moy;
+        double redAverage = 0;
+        double greenAverage = 0;
+        double blueAverage = 0;
+        double maxRelativeDifference = 0;                                       //maximum relative difference found
+        for (int i=1; i< topRows-bottomRows-1;i++){
+            redAverage   = src.get(bottomRows + i,middle)[0]; //average of the pixels RGB values
+            greenAverage = src.get(bottomRows + i,middle)[1];
+            blueAverage  = src.get(bottomRows + i,middle)[2];
+        }
+
+        moy = (redAverage + greenAverage +blueAverage) / 3;
+
+                                                //for each colour
+        double relativeDifference = ( redAverage - moy ) / moy;//determine the relative difference
+        if (relativeDifference <0){                                         //if it's negative
+            relativeDifference *= -1;                                       //multiply it by -1
+        }
+        if (maxRelativeDifference<relativeDifference){                      //if it's superior to the previous maximum
+            maxRelativeDifference = relativeDifference;                     //it's the new maximum
+        }
+
+        relativeDifference = ( greenAverage - moy ) / moy;//determine the relative difference
+        if (relativeDifference <0){                                         //if it's negative
+            relativeDifference *= -1;                                       //multiply it by -1
+        }
+        if (maxRelativeDifference<relativeDifference){                      //if it's superior to the previous maximum
+            maxRelativeDifference = relativeDifference;                     //it's the new maximum
+        }
+
+        relativeDifference = ( blueAverage - moy ) / moy;//determine the relative difference
+        if (relativeDifference <0){                                         //if it's negative
+            relativeDifference *= -1;                                       //multiply it by -1
+        }
+        if (maxRelativeDifference<relativeDifference){                      //if it's superior to the previous maximum
+            maxRelativeDifference = relativeDifference;                     //it's the new maximum
+        }
+        //if you are looking for gray and the thresholds for gray are met
+        return maxRelativeDifference < relativeThreshold && Objects.equals(color, "gray") && moy > grayThreshold;
+    }
     /**
      * drawCircles draw circles on the detected sheets
      * @param sections List of detected sheets
@@ -147,6 +201,9 @@ public class FindSheets {
             if (width < maxWidth && width > 5){                                 //if the width is inferior to the maxWidth and inferior to the minWidth
                 maxWidth = width;                                               //Width becomes maxWidth
             }
+        }
+        if (maxWidth == 200){
+            maxWidth = 5;
         }
         Log.d("Leon", "drawCircles: "+ maxWidth);
         for (int i=0; i < sections.size()/2;i++){                               //for each two successive lines
@@ -203,14 +260,16 @@ public class FindSheets {
             if (relativeDifference <0){                                         //if it's negative
                 relativeDifference *= -1;                                       //multiply it by -1
             }
-            if (threshold < relativeDifference){                               //if it's superior to the threshold
-                sections.remove(2*i+1-2*removedNumbers);                    //remove the top of the sheet from the list
-                sections.remove(2*i-2*removedNumbers);                      //remove the bottom of the sheet from the list
-                removedNumbers+=1;                                             //the amount of removed sheets increase by 1
+            if (threshold < relativeDifference){                                //if it's superior to the threshold
+                sections.remove(2*i+1-2*removedNumbers);                     //remove the top of the sheet from the list
+                sections.remove(2*i-2*removedNumbers);                       //remove the bottom of the sheet from the list
+                removedNumbers+=1;                                              //the amount of removed sheets increase by 1
             }
         }
         Log.d("height", "checkHeight: "+ sections);
     }
+
+
 
     /**
      * processImage define the order of the processes to find the sheets
@@ -223,8 +282,10 @@ public class FindSheets {
         List<Integer> sections =  new ArrayList<>();            //create a list which will contain the position of the sheets
 
         screeningBlack(sections,src);                           //find the sections
+        //screeningColor(sections,src,"black");
         Log.d("Leon", "processImage: " + sections);
         screeningGray(sections,src);                            //remove the sections which aren't gray
+        //screeningColor(sections,src,"gray");
         Log.d("Leon", "processImage: " + sections);
         checkHeight(sections);                                  //remove the sections whose height are too different from the median height
         amountSheets = counting (sections);                     //Determine the amount of sheets
