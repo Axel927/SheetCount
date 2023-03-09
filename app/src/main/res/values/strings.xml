@@ -39,4 +39,6 @@
     <string name="photo_name_separator">" : "</string>
     <string name="name_count_title">Nombre de tôles comptées</string>
     <string name="name_count_text">%1$d tôles ont été comptées avec le nom : %2$s.</string>
+    <string name="error_modify_count_title">Erreur</string>
+    <string name="error_modify_count_text">Seuls les nombres entiers sont autorisés.</string>
 </resources>

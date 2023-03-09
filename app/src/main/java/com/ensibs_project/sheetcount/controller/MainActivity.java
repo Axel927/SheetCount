@@ -275,7 +275,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("SetTextI18n")
     protected void removeSheet(){
-        addedText.setText(Integer.toString(parseInt(addedText.getText().toString()) - 1));
         refreshCount();
     }
 
@@ -284,7 +283,16 @@ public class MainActivity extends AppCompatActivity {
      * @return always true
      */
     protected boolean modifySheet(){
-        refreshCount();
+        try{
+            refreshCount();
+        }
+        catch(NumberFormatException e){  // if float number added
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.error_modify_count_title)).setMessage(R.string.error_modify_count_text)
+                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+            addedText.setText("0");
+            refreshCount();
+        }
         return true;
     }
 
