@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("SetTextI18n")
     protected void removeSheet(){
+        addedText.setText(Integer.toString(parseInt(addedText.getText().toString()) - 1));
         refreshCount();
     }
 
