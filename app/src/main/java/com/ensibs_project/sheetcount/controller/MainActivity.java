@@ -32,6 +32,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private WebView imageViewer;
     private String photoPath;
+    private String photoPathUntouched;
     private TextView valueCountedText;
     private EditText addedText;
     private TextView totalText;
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String IMAGE_VIEWED = "file:///android_res/drawable/launch_image.jpg";
     private static ArrayList<String> countedList = new ArrayList<>();
     private FindSheets findSheets;
+    private SeekBar sBar;
+    private TextView tView;
 
     /**
      * Called at the start of the app after the splashActivity
@@ -77,12 +81,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Initialise SeekBar
+        sBar = (SeekBar) findViewById(R.id.thresholdSeekBar);
+        tView = (TextView) findViewById(R.id.thresholdTextview);
+        tView.setText(sBar.getProgress()+"" );
+
         findSheets = new FindSheets();
         File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         // Create/load a file
         File photoFile = new File(photoDir.toString() + "/sheetCountPlotImage.jpg");
+        File photoFileUntouched = new File(photoDir.toString() + "/sheetCountPlotImageUntouched.jpg");
         // Saving of the full path
         photoPath = photoFile.getAbsolutePath();
+        photoPathUntouched = photoFileUntouched.getAbsolutePath();
 
         // Get the ids
         Button pictureButton = findViewById(R.id.takePictBtn);
@@ -127,6 +138,31 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, 1); //If not granted request them
         }
+
+        sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int pval = 0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pval = progress;
+                tView.setText(pval+"");
+                findSheets.changeThreshold(pval);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //write custom code to on start progress
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (!photoPath.isEmpty()){
+                    findSheets.reinitializeImage(photoPath,photoPathUntouched);
+                    imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
+                    imageViewer.setInitialScale(1);
+                    valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
+                    refreshCount();
+                }
+            }
+
+        });
     }
 
     /**
@@ -167,10 +203,12 @@ public class MainActivity extends AppCompatActivity {
         // Creation of the URI
         Uri photoUri = FileProvider.getUriForFile(MainActivity.this,
                 MainActivity.this.getApplicationContext().getPackageName() + ".provider", new File(photoPath));
+        Uri photoUri2 = FileProvider.getUriForFile(MainActivity.this,
+                MainActivity.this.getApplicationContext().getPackageName() + ".provider", new File(photoPathUntouched));
 
         // Transfer URI to the intent to save the picture in a temp file
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri2);
         // Open the activity
         startActivityForResult(intent, BACK_TAKE_PICTURE);
     }
@@ -236,16 +274,20 @@ public class MainActivity extends AppCompatActivity {
         try {
             InputStream is;
             OutputStream os;
+            OutputStream os2;
 
             is = new FileInputStream(imgDecodableString);
             os = new FileOutputStream(photoPath);
+            os2 = new FileOutputStream(photoPathUntouched);
             byte[] buffer = new byte[1024];
             int len;
             while ((len = is.read(buffer)) > 0) {
                 os.write(buffer, 0, len);
+                os2.write(buffer, 0, len);
             }
             is.close();
             os.close();
+            os2.close();
 
             // Define the image in ImageView and count the sheets
             imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));
@@ -304,6 +346,11 @@ public class MainActivity extends AppCompatActivity {
     protected void refreshCount(){
         totalText.setText(Integer.toString(parseInt(valueCountedText.getText().toString()) +
                 parseInt(addedText.getText().toString())));
+    }
+
+    protected void copyImage(){
+
+
     }
 
     /**

@@ -37,6 +37,7 @@ import java.util.Objects;
 public class FindSheets {
 
     private int amountSheets;                                                   //amount of sheets counted
+    private int threshold = 140;
 
     /**
      * getCount returns the amount of detected sheets
@@ -46,12 +47,14 @@ public class FindSheets {
         return amountSheets;
     }
 
+    public void changeThreshold(int newThreshold){ threshold = newThreshold;}
+
     /**
      * screeningBlack checks the middle of the picture and where there are black lines
      * @param sections List of detected sheets
      * @param src Image of the sheets
      */
-    public static void screeningBlack(List<Integer> sections,Mat src) {
+    public void screeningBlack(List<Integer> sections,Mat src) {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );                         //give access to opencv
         boolean successiveBlack = false;                                        //True if the previous detected colour was black else false
         int previousLine = 0;                                                   //height of the previous detected line
@@ -76,7 +79,7 @@ public class FindSheets {
      * @param sections List of detected sheets
      * @param src Image of the sheets
      */
-    public static void screeningGray(List<Integer> sections,Mat src) {
+    public void screeningGray(List<Integer> sections,Mat src) {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );                         //give access to opencv
         int center; //center of two black lines
         for (int i =0; i < sections.size()/2; i++){                             //for each pixel in the middle of the image
@@ -113,10 +116,10 @@ public class FindSheets {
      * @param color which colour is looked for
      * @return Boolean whether the color is the asked one or not
      */
-    public static boolean checkColour(int rows, Mat src, String color){
+    public boolean checkColour(int rows, Mat src, String color){
         double relativeThreshold = 0.20;                                        //allowed relative difference between the RGB values of a pixel and their average
-        int grayThreshold = 140;                                                //threshold under which a pixel is considered gray
-        int blackThreshold = 115;                                               //threshold over which a pixel is considered black
+        int grayThreshold = threshold;                                                //threshold under which a pixel is considered gray
+        int blackThreshold = threshold - 30;                                               //threshold over which a pixel is considered black
 
         int middle = src.cols()/2;                                              //middle of the image
         double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values
@@ -299,6 +302,10 @@ public class FindSheets {
         return file;                                            //return the file
     }
 
+    public void reinitializeImage(String reinitialisedImage,String originalImage){
+        Mat src = Imgcodecs.imread(originalImage);                       //get  the image
+        Imgcodecs.imwrite(reinitialisedImage, src);                           //transform the image into a file
+    }
 
 }
 
