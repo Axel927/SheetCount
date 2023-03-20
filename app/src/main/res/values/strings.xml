@@ -41,4 +41,12 @@
     <string name="name_count_text">%1$d tôles ont été comptées avec le nom : %2$s.</string>
     <string name="error_modify_count_title">Erreur</string>
     <string name="error_modify_count_text">Seuls les nombres entiers sont autorisés.</string>
+    <string name="export_btn_name">Exporter les données</string>
+    <string name="export_error_title">Erreur</string>
+    <string name="export_error_text">Une erreur a eu lieu durant l\'exportation :\n</string>
+    <string name="email_error_title">Erreur</string>
+    <string name="email_error_text">Application d\'email non trouvée.</string>
+    <string name="email_subject">Comptage de tôles du</string>
+    <string name="email_text">Bonjour,\n\nVoici en pièce jointe le comptage de tôles du %1$s.</string>
+    <string name="column_name">Nom;Quantité\n</string>
 </resources>

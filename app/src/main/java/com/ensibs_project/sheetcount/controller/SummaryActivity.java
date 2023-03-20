@@ -17,10 +17,13 @@ package com.ensibs_project.sheetcount.controller;
 
 import static java.lang.Integer.parseInt;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,12 +33,18 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.ensibs_project.sheetcount.BuildConfig;
 import com.ensibs_project.sheetcount.R;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,11 +70,13 @@ public class SummaryActivity extends AppCompatActivity {
         Button aboutButton = findViewById(R.id.about);
         TextView totalCount = findViewById(R.id.totalCounted);
         listView = findViewById(R.id.photoListView);
+        Button exportButton = findViewById(R.id.exportBtn);
 
         // Set the action of the buttons on click
         backButton.setOnClickListener(view -> backToMain());
         finishButton.setOnClickListener(view -> finishCount());
         aboutButton.setOnClickListener(view -> about());
+        exportButton.setOnClickListener(view -> writeToCSV());
 
         int totalCounted = 0;
         list = new ArrayList<>();
@@ -93,6 +104,7 @@ public class SummaryActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.finishTitle)).setMessage(R.string.finishText)
                 .setPositiveButton(R.string.finishPositiveButton, (dialogInterface, i) -> {
+                    writeToCSV();
                     closeContextMenu();
                     Runtime.getRuntime().exit(0);
                 }).setNegativeButton(R.string.finishNegativeButton, (dialogInterface, i) -> closeContextMenu()).create().show();
@@ -177,5 +189,52 @@ public class SummaryActivity extends AppCompatActivity {
 
         dialog.show();
         return true;
+    }
+
+    /**
+     * Write count to csv file and send it by email.
+     */
+    private void writeToCSV(){
+        // Load the data
+        String data = getString(R.string.column_name);
+        for(int i = 0 ; i < listView.getCount() ; i ++) {
+            data = data.concat(listView.getItemAtPosition(i).toString().split(getString(R.string.photo_name_separator))[0]);
+            data = data.concat(";");
+            data = data.concat(listView.getItemAtPosition(i).toString().split(getString(R.string.photo_name_separator))[1]);
+            data = data.concat("\n");
+        }
+
+        // Create file
+        File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File csvFile = new File(photoDir.toString() + "/test.csv");
+        try{
+            FileWriter fw = new FileWriter(csvFile);
+            fw.write(data);
+            fw.close();
+        }
+        catch (IOException e){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.export_error_title)).setMessage(getResources().getString(R.string.export_error_text) + e)
+                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+        }
+
+        // Send email
+        try {
+            @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("dd/MM/yyy").format(new Date());
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"test@test.com"});
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject)+" "+time);
+            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_text, time));
+
+            Uri fileUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", csvFile);
+            intent.putExtra(Intent.EXTRA_STREAM, fileUri);
+            intent.setType("*/*");
+            this.startActivity(Intent.createChooser(intent, "email"));
+        } catch (android.content.ActivityNotFoundException e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.email_error_title)).setMessage(getResources().getString(R.string.email_error_text) + e)
+                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+        }
     }
 }
