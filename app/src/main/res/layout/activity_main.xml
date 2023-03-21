@@ -202,6 +202,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:indeterminate="false"
+            android:progressTint="@color/button_background"
+            android:thumbTint="@color/button_background"
             android:max="255"
             android:progress="140" />
 
