@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
      * Called at the start of the app after the splashActivity
      * @param savedInstanceState Allow to get data back after destroy
      */
-    @SuppressLint({"ClickableViewAccessibility", "MissingInflatedId"})
+    @SuppressLint({"ClickableViewAccessibility", "MissingInflatedId", "SetTextI18n"})
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         // Create/load a file
         File photoFile = new File(photoDir.toString() + "/sheetCountPlotImage.jpg");
-        File photoFileUntouched = new File(photoDir.toString() + "/sheetCountPlotImageUntouched.jpg");
+        File photoFileUntouched = new File(photoDir + "/sheetCountPlotImageUntouched.jpg");
         // Saving of the full path
         photoPath = photoFile.getAbsolutePath();
         photoPathUntouched = photoFileUntouched.getAbsolutePath();
@@ -143,12 +143,12 @@ public class MainActivity extends AppCompatActivity {
         tView.setOnEditorActionListener((textView, i, keyEvent) -> changeProgress());
 
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int pval = 0;
+            int pValue = 0;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                pval = progress;
-                tView.setText(pval+"");
-                findSheets.changeThreshold(pval);
+                pValue = progress;
+                tView.setText(pValue+"");
+                findSheets.changeThreshold(pValue);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (imageExists == true){
+                if (imageExists){
                     findSheets.reinitializeImage(photoPath,photoPathUntouched);
                     imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
                     imageViewer.setInitialScale(1);
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         if (i < 50){ i = 50; }
         sBar.setProgress(i);
         findSheets.changeThreshold(i);
-        if (imageExists == true){
+        if (imageExists){
             findSheets.reinitializeImage(photoPath,photoPathUntouched);
             imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
             imageViewer.setInitialScale(1);
