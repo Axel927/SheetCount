@@ -140,47 +140,50 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, 1); //If not granted request them
         }
 
-        tView.setOnEditorActionListener((textView, i, keyEvent) -> changeProgress());
+        tView.setOnEditorActionListener((textView, i, keyEvent) -> changeProgress()); //when somebody enters a threshold value
 
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int pValue = 0;
+            int pValue = 0; //the current progress value
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                pValue = progress;
-                tView.setText(pValue+"");
-                findSheets.changeThreshold(pValue);
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { //when the seekBars progress value is changed
+                pValue = progress;      //get the new progress value
+                tView.setText(pValue+"");   //show it in the text
+                findSheets.changeThreshold(pValue); //change the threshold to its new value
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //write custom code to on start progress
             }
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                if (imageExists){
-                    findSheets.reinitializeImage(photoPath,photoPathUntouched);
+            public void onStopTrackingTouch(SeekBar seekBar) { //when you stop manipulating the seekbar
+                if (imageExists){ //if there is an image
+                    findSheets.reinitializeImage(photoPath,photoPathUntouched); //remove the dots
                     imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
                     imageViewer.setInitialScale(1);
                     valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
-                    refreshCount();
+                    refreshCount(); //refresh the amount of counted sheets
                 }
             }
 
         });
     }
 
-
+    /**
+     * changeProgress change the seekbars progress when a tView value is entered
+     * @return true
+     */
     public boolean changeProgress(){
-        int i =parseInt(tView.getText().toString());
-        if (i > 200){ i = 200;}
+        int i =parseInt(tView.getText().toString()); //get the new value
+        if (i > 200){ i = 200;} //check if it is among the right values
         if (i < 50){ i = 50; }
-        sBar.setProgress(i);
-        findSheets.changeThreshold(i);
-        if (imageExists){
-            findSheets.reinitializeImage(photoPath,photoPathUntouched);
+        sBar.setProgress(i); //set the new seekBar value
+        findSheets.changeThreshold(i); //change the threshold
+        if (imageExists){   //if there is an image
+            findSheets.reinitializeImage(photoPath,photoPathUntouched); //remove the dots
             imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
             imageViewer.setInitialScale(1);
             valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
-            refreshCount();
+            refreshCount(); //refresh the amount of counted sheets
         }
         return true;
     }

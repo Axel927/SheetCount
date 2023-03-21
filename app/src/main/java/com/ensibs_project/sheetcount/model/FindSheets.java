@@ -47,8 +47,16 @@ public class FindSheets {
         return amountSheets;
     }
 
+    /**
+     * getThreshold returns the current threshold
+     * @return returns the current threshold
+     */
     public int getThreshold() { return threshold;}
 
+    /**
+     * changeThreshold changes the current threshold
+     * @param newThreshold the wanted new threshold
+     */
     public void changeThreshold(int newThreshold){ threshold = newThreshold;}
 
     /**
@@ -251,32 +259,40 @@ public class FindSheets {
         return file;                                            //return the file
     }
 
+    /**
+     * reinitializeImage removes the drawn dots from an image
+     * @param reinitialisedImage the image with dots on it
+     * @param originalImage the original image without dots
+     */
     public void reinitializeImage(String reinitialisedImage,String originalImage){
         Mat src = Imgcodecs.imread(originalImage);                       //get  the image
         Imgcodecs.imwrite(reinitialisedImage, src);                           //transform the image into a file
     }
 
+    /**
+     * VariableThreshold finds the threshold where most things were detected and then processes the image for that threshold
+     * @param file path to the image
+     * @return path to the modified image
+     */
     public String VariableThreshold(String file){
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );         //load the opencv library
         Mat src = Imgcodecs.imread(file);                       //get  the image
         List<Integer> sections =  new ArrayList<>();            //create a list which will contain the position of the sheets
-        int maxThreshold = 50;
-        for (int i=0 ; i < 16 ; i++){
-            threshold = 10*i+50;
+        int maxThreshold = 50;                                  //the threshold with the highest amount of detected items
+        for (int i=0 ; i < 16 ; i++){                           //for the thresholds of 50 to 200
+            threshold = 10*i+50;                                    //determine the new threshold
             screeningBlack(sections,src);                           //find the sections
-            //screeningColor(sections,src,"black");
             Log.d("Leon", "processImage: " + sections);
             screeningGray(sections,src);                            //remove the sections which aren't gray
-            //screeningColor(sections,src,"gray");
             Log.d("Leon", "processImage: " + sections);
             checkHeight(sections);                                  //remove the sections whose height are too different from the median height
-            if (counting (sections)> amountSheets){
+            if (counting (sections)> amountSheets){                 //if it has more detected items than the previous maximum
                 amountSheets = counting (sections);                     //Determine the amount of sheets
-                maxThreshold = threshold;
+                maxThreshold = threshold;                               //assign a new maxThreshold
             }
         }
-        threshold = maxThreshold;
-        return processImage(file);
+        threshold = maxThreshold;                               //the threshold is the maxThreshold
+        return processImage(file);                              //Process the image with the new threshold
     }
 
 }
