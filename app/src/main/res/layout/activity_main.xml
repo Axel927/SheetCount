@@ -204,7 +204,8 @@
             android:indeterminate="false"
             android:progressTint="@color/button_background"
             android:thumbTint="@color/button_background"
-            android:max="255"
+            android:max="200"
+            android:min="50"
             android:progress="140" />
 
         <Space
@@ -213,16 +214,18 @@
             android:layout_weight="1"
             tools:ignore="NestedWeights" />
 
-        <TextView
+        <EditText
             android:id="@+id/thresholdTextview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="16dp"
+            android:inputType="numberDecimal"
             android:text="@string/default_value_threshold"
             android:textSize="24sp"
             android:textStyle="bold" />
+
 
     </LinearLayout>
 

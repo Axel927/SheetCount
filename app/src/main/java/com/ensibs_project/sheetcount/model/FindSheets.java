@@ -119,7 +119,7 @@ public class FindSheets {
     public boolean checkColour(int rows, Mat src, String color){
         double relativeThreshold = 0.20;                                        //allowed relative difference between the RGB values of a pixel and their average
         int grayThreshold = threshold;                                                //threshold under which a pixel is considered gray
-        int blackThreshold = threshold - 30;                                               //threshold over which a pixel is considered black
+        int blackThreshold = threshold * 110 / 140;                                               //threshold over which a pixel is considered black
 
         int middle = src.cols()/2;                                              //middle of the image
         double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values

@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private FindSheets findSheets;
     private SeekBar sBar;
     private TextView tView;
+    private boolean imageExists = false;
 
     /**
      * Called at the start of the app after the splashActivity
@@ -139,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, 1); //If not granted request them
         }
 
+        tView.setOnEditorActionListener((textView, i, keyEvent) -> changeProgress());
+
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int pval = 0;
             @Override
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (!photoPath.isEmpty()){
+                if (imageExists == true){
                     findSheets.reinitializeImage(photoPath,photoPathUntouched);
                     imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
                     imageViewer.setInitialScale(1);
@@ -165,11 +168,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private boolean changeProgress(){
+        int i =parseInt(tView.getText().toString());
+        if (i > 200){ i = 200;}
+        if (i < 50){ i = 50; }
+        sBar.setProgress(i);
+        findSheets.changeThreshold(i);
+        if (imageExists == true){
+            findSheets.reinitializeImage(photoPath,photoPathUntouched);
+            imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
+            imageViewer.setInitialScale(1);
+            valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
+            refreshCount();
+        }
+        return true;
+    }
+
     /**
      * Function called to choose a picture in the gallery.
      */
     @SuppressWarnings("deprecation")
     private void choosePicture(){
+        imageExists = true;
         addedText.setText("0");
         Intent intent = new Intent(Intent.ACTION_PICK);
 
@@ -197,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void takePicture(){
+        imageExists = true;
         addedText.setText("0");
         // Creation of a window to take a picture
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
