@@ -22,6 +22,10 @@ import static org.opencv.imgproc.Imgproc.circle;
 import static java.lang.Integer.parseInt;
 
 import android.util.Log;
+import android.widget.SeekBar;
+
+import com.ensibs_project.sheetcount.R;
+import com.ensibs_project.sheetcount.controller.MainActivity;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -36,7 +40,7 @@ import java.util.Objects;
 
 public class FindSheets {
 
-    private int amountSheets;                                                   //amount of sheets counted
+    private int amountSheets = 0;                                                   //amount of sheets counted
     private int threshold = 140;
 
     /**
@@ -46,6 +50,8 @@ public class FindSheets {
     public int getCount(){
         return amountSheets;
     }
+
+    public int getThreshold() { return threshold;}
 
     public void changeThreshold(int newThreshold){ threshold = newThreshold;}
 
@@ -305,6 +311,29 @@ public class FindSheets {
     public void reinitializeImage(String reinitialisedImage,String originalImage){
         Mat src = Imgcodecs.imread(originalImage);                       //get  the image
         Imgcodecs.imwrite(reinitialisedImage, src);                           //transform the image into a file
+    }
+
+    public String VariableThreshold(String file){
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );         //load the opencv library
+        Mat src = Imgcodecs.imread(file);                       //get  the image
+        List<Integer> sections =  new ArrayList<>();            //create a list which will contain the position of the sheets
+        int maxThreshold = 50;
+        for (int i=0 ; i < 16 ; i++){
+            threshold = 10*i+50;
+            screeningBlack(sections,src);                           //find the sections
+            //screeningColor(sections,src,"black");
+            Log.d("Leon", "processImage: " + sections);
+            screeningGray(sections,src);                            //remove the sections which aren't gray
+            //screeningColor(sections,src,"gray");
+            Log.d("Leon", "processImage: " + sections);
+            checkHeight(sections);                                  //remove the sections whose height are too different from the median height
+            if (counting (sections)> amountSheets){
+                amountSheets = counting (sections);                     //Determine the amount of sheets
+                maxThreshold = threshold;
+            }
+        }
+        threshold = maxThreshold;
+        return processImage(file);
     }
 
 }

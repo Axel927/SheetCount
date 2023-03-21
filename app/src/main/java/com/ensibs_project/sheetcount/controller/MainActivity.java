@@ -168,7 +168,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private boolean changeProgress(){
+
+    public boolean changeProgress(){
         int i =parseInt(tView.getText().toString());
         if (i > 200){ i = 200;}
         if (i < 50){ i = 50; }
@@ -252,8 +253,9 @@ public class MainActivity extends AppCompatActivity {
 
                 case BACK_TAKE_PICTURE:  // When a picture has just been taken
                     try {
-                        imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
+                        imageViewer.loadUrl("file://" + findSheets.VariableThreshold(photoPath));  // Print the image and count the sheets
                         imageViewer.setInitialScale(1);
+                        sBar.setProgress(findSheets.getThreshold());
                         valueCountedText.setText(String.valueOf(findSheets.getCount()));  // Print the number of sheets counted
                         refreshCount();
 
@@ -311,7 +313,8 @@ public class MainActivity extends AppCompatActivity {
             os2.close();
 
             // Define the image in ImageView and count the sheets
-            imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));
+            imageViewer.loadUrl("file://" + findSheets.VariableThreshold(photoPath));
+            sBar.setProgress(findSheets.getThreshold());
             imageViewer.setInitialScale(1);
             valueCountedText.setText(String.valueOf(findSheets.getCount()));
             refreshCount();
@@ -369,10 +372,6 @@ public class MainActivity extends AppCompatActivity {
                 parseInt(addedText.getText().toString())));
     }
 
-    protected void copyImage(){
-
-
-    }
 
     /**
      * Create a popup to give information
