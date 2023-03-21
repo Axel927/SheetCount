@@ -24,13 +24,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -38,7 +44,9 @@ import androidx.core.content.FileProvider;
 import com.ensibs_project.sheetcount.BuildConfig;
 import com.ensibs_project.sheetcount.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -53,7 +61,21 @@ import java.util.List;
 public class SummaryActivity extends AppCompatActivity {
     private ListView listView;
     private List<String> list;
+    private Button exportButton;
+    private Button finishButton;
+    private Button backButton;
+    private Button settingsBtn;
+    private TableLayout settingsTable;
+    private EditText csvName;
+    private Button pathBtn;
+    private EditText csvPath;
+    private EditText emailTo;
+    private EditText emailObject;
+    private EditText emailContent;
+    private Button resetBtn;
+    private Button finishSettings;
     public static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
+    private static final int DIRECTORY_CODE = 1;
 
     /**
      * Methode called at the creation of the activity
@@ -65,12 +87,28 @@ public class SummaryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_summary);
 
         // Get the ids
-        Button backButton = findViewById(R.id.backBtn);
-        Button finishButton = findViewById(R.id.finishBtn);
+        backButton = findViewById(R.id.backBtn);
+        finishButton = findViewById(R.id.finishBtn);
         Button aboutButton = findViewById(R.id.about);
         TextView totalCount = findViewById(R.id.totalCounted);
         listView = findViewById(R.id.photoListView);
-        Button exportButton = findViewById(R.id.exportBtn);
+        exportButton = findViewById(R.id.exportBtn);
+        settingsBtn = findViewById(R.id.settingsBtn);
+        settingsTable = findViewById(R.id.settingsTable);
+        csvName = findViewById(R.id.csvName);
+        pathBtn = findViewById(R.id.pathBtn);
+        csvPath = findViewById(R.id.editTextPath);
+        emailTo = findViewById(R.id.editTextEmail);
+        emailObject = findViewById(R.id.objectMail);
+        emailContent = findViewById(R.id.mailContent);
+        resetBtn = findViewById(R.id.resetBtn);
+        finishSettings = findViewById(R.id.endSettingsBtn);
+
+        settingsBtn.setOnClickListener(view -> settings());
+        resetBtn.setOnClickListener(view -> reset());
+        finishSettings.setOnClickListener(view -> closeSettings());
+        pathBtn.setOnClickListener(view -> setPath());
+        setSettingsVisibility(false);
 
         // Set the action of the buttons on click
         backButton.setOnClickListener(view -> backToMain());
@@ -94,6 +132,25 @@ public class SummaryActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener((parent, view, position, id) -> setName(position));
 
         totalCount.setText(String.valueOf(totalCounted));  // Print the total counted
+        readSettings();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == DIRECTORY_CODE){
+            try {
+                if (data != null) {
+                    String[] pathSections = data.getData().getPath().split(":");
+                    String path  = Environment.getExternalStorageDirectory().getPath() + "/" + pathSections[pathSections.length-1];
+                    csvPath.setText(path);
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -194,6 +251,7 @@ public class SummaryActivity extends AppCompatActivity {
     /**
      * Write count to csv file and send it by email.
      */
+    @SuppressLint("SimpleDateFormat")
     private void writeToCSV(){
         // Load the data
         String data = getString(R.string.column_name);
@@ -204,9 +262,9 @@ public class SummaryActivity extends AppCompatActivity {
             data = data.concat("\n");
         }
 
+        String time = new SimpleDateFormat("dd-MM-yyy").format(new Date());
         // Create file
-        File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File csvFile = new File(photoDir.toString() + "/test.csv");
+        File csvFile = new File(csvPath.getText() + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
         try{
             FileWriter fw = new FileWriter(csvFile);
             fw.write(data);
@@ -220,12 +278,12 @@ public class SummaryActivity extends AppCompatActivity {
 
         // Send email
         try {
-            @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("dd/MM/yyy").format(new Date());
+            time = new SimpleDateFormat("mm:hh:dd/MM/yyy").format(new Date());
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"test@test.com"});
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject)+" "+time);
-            intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_text, time));
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailTo.getText().toString()});
+            intent.putExtra(Intent.EXTRA_SUBJECT, emailObject.getText().toString().replace("{date}", time));
+            intent.putExtra(Intent.EXTRA_TEXT, emailContent.getText().toString().replace("{date}", time));
 
             Uri fileUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", csvFile);
             intent.putExtra(Intent.EXTRA_STREAM, fileUri);
@@ -235,6 +293,104 @@ public class SummaryActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.email_error_title)).setMessage(getResources().getString(R.string.email_error_text) + e)
                     .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+        }
+    }
+
+    private void settings(){
+        setSettingsVisibility(true);
+    }
+
+    private void setSettingsVisibility(boolean visible){
+        settingsBtn.setEnabled(!visible);
+        if(visible) {
+            settingsTable.setVisibility(View.VISIBLE);
+            exportButton.setVisibility(View.GONE);
+            backButton.setVisibility(View.GONE);
+            finishButton.setVisibility(View.GONE);
+            listView.setVisibility(View.GONE);
+        }
+        else {
+            settingsTable.setVisibility(View.GONE);
+            exportButton.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.VISIBLE);
+            finishButton.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void reset(){
+        csvName.setText(getString(R.string.csv_file_name));
+        csvPath.setText(getString(R.string.csv_file_path));
+        emailTo.setText(getString(R.string.email_address));
+        emailObject.setText(getString(R.string.email_object));
+        emailContent.setText(getString(R.string.email_text_content));
+    }
+
+    private void closeSettings(){
+        File path = new File(csvPath.getText().toString());
+        if(path.exists() && path.isDirectory()){
+            setSettingsVisibility(false);
+            saveSettings();
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.error_path_title)).setMessage(getResources().getString(R.string.error_path_text))
+                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+        }
+    }
+
+    private void setPath(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.putExtra("location", csvPath.getText());
+        startActivityForResult(Intent.createChooser(intent, "Choose directory"), DIRECTORY_CODE);
+    }
+
+    private void readSettings(){
+        File saveDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // Create/load a file
+        File saveFile = new File(saveDir.toString() + "/settings.sc");
+        if(saveFile.exists()) {
+            try {
+                FileReader fr = new FileReader(saveFile);
+                BufferedReader br = new BufferedReader(fr);
+                StringBuilder sb = new StringBuilder();
+                String data;
+
+                while ((data = br.readLine()) != null) {
+                    sb.append(data);
+                    sb.append("\n");
+                }
+                fr.close();
+
+                String[] lines = sb.toString().split("\\$");
+                csvName.setText(lines[0]);
+                csvPath.setText(lines[1]);
+                emailTo.setText(lines[2]);
+                emailObject.setText(lines[3]);
+                emailContent.setText(lines[4]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void saveSettings(){
+        File saveDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        // Create/load a file
+        File saveFile = new File(saveDir.toString() + "/settings.sc");
+        String data = csvName.getText() + "$" +
+                csvPath.getText() + "$" +
+                emailTo.getText() + "$" +
+                emailObject.getText() + "$" +
+                emailContent.getText() + "$";
+        try{
+            FileWriter fw = new FileWriter(saveFile);
+            fw.write(data);
+            fw.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
         }
     }
 }

@@ -47,8 +47,21 @@
     <string name="email_error_title">Erreur</string>
     <string name="email_error_text">Application d\'email non trouvée.</string>
     <string name="email_subject">Comptage de tôles du</string>
-    <string name="email_text">Bonjour,\n\nVoici en pièce jointe le comptage de tôles du %1$s.</string>
     <string name="column_name">Nom;Quantité\n</string>
     <string name="settings">P</string>
     <string name="default_value_threshold">140</string>
+    <string name="csv_file_text">Nom fichier : </string>
+    <string name="csv_file_name">comptage_{date}</string>
+    <string name="csv_file_path_btn">Chemin</string>
+    <string name="csv_file_path">/storage/emulated/0/Download</string>
+    <string name="email_address_text">Destinataire : </string>
+    <string name="email_address">example@email.com</string>
+    <string name="email_object_text">Objet :</string>
+    <string name="email_object">Comptage de tôles du {date}</string>
+    <string name="email_text">Contenu :</string>
+    <string name="email_text_content">Bonjour,\n\nVoici en pièce jointe le comptage de tôles du {date}.\nCordialement,\n\nSheetCount</string>
+    <string name="end_settings">Terminer</string>
+    <string name="reset_btn">Rétablir</string>
+    <string name="error_path_title">Erreur</string>
+    <string name="error_path_text">Le dossier choisi pour le fichier de sauvegarde des données n\'existe pas. Veuillez modifier le chemin.</string>
 </resources>
