@@ -24,9 +24,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -62,18 +59,16 @@ public class SummaryActivity extends AppCompatActivity {
     private ListView listView;
     private List<String> list;
     private Button exportButton;
+    private TextView settingsTV;
     private Button finishButton;
     private Button backButton;
     private Button settingsBtn;
     private TableLayout settingsTable;
     private EditText csvName;
-    private Button pathBtn;
     private EditText csvPath;
     private EditText emailTo;
     private EditText emailObject;
     private EditText emailContent;
-    private Button resetBtn;
-    private Button finishSettings;
     public static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
     private static final int DIRECTORY_CODE = 1;
 
@@ -96,13 +91,14 @@ public class SummaryActivity extends AppCompatActivity {
         settingsBtn = findViewById(R.id.settingsBtn);
         settingsTable = findViewById(R.id.settingsTable);
         csvName = findViewById(R.id.csvName);
-        pathBtn = findViewById(R.id.pathBtn);
+        Button pathBtn = findViewById(R.id.pathBtn);
         csvPath = findViewById(R.id.editTextPath);
         emailTo = findViewById(R.id.editTextEmail);
         emailObject = findViewById(R.id.objectMail);
         emailContent = findViewById(R.id.mailContent);
-        resetBtn = findViewById(R.id.resetBtn);
-        finishSettings = findViewById(R.id.endSettingsBtn);
+        Button resetBtn = findViewById(R.id.resetBtn);
+        Button finishSettings = findViewById(R.id.endSettingsBtn);
+        settingsTV = findViewById(R.id.settingsTextView);
 
         settingsBtn.setOnClickListener(view -> settings());
         resetBtn.setOnClickListener(view -> reset());
@@ -135,6 +131,12 @@ public class SummaryActivity extends AppCompatActivity {
         readSettings();
     }
 
+    /**
+     * Get the path of the csv file
+     * @param requestCode return code
+     * @param resultCode result code (must be 'ok')
+     * @param data the data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -262,7 +264,7 @@ public class SummaryActivity extends AppCompatActivity {
             data = data.concat("\n");
         }
 
-        String time = new SimpleDateFormat("dd-MM-yyy").format(new Date());
+        String time = new SimpleDateFormat("mm:hh:dd-MM-yyy").format(new Date());
         // Create file
         File csvFile = new File(csvPath.getText() + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
         try{
@@ -278,7 +280,7 @@ public class SummaryActivity extends AppCompatActivity {
 
         // Send email
         try {
-            time = new SimpleDateFormat("mm:hh:dd/MM/yyy").format(new Date());
+            time = new SimpleDateFormat("dd/MM/yyy").format(new Date());
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailTo.getText().toString()});
@@ -296,13 +298,21 @@ public class SummaryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called when settings button clicked
+     */
     private void settings(){
         setSettingsVisibility(true);
     }
 
+    /**
+     * Change the visibility of the settings
+     * @param visible true make settings visible
+     */
     private void setSettingsVisibility(boolean visible){
         settingsBtn.setEnabled(!visible);
         if(visible) {
+            settingsTV.setVisibility(View.VISIBLE);
             settingsTable.setVisibility(View.VISIBLE);
             exportButton.setVisibility(View.GONE);
             backButton.setVisibility(View.GONE);
@@ -310,6 +320,7 @@ public class SummaryActivity extends AppCompatActivity {
             listView.setVisibility(View.GONE);
         }
         else {
+            settingsTV.setVisibility(View.GONE);
             settingsTable.setVisibility(View.GONE);
             exportButton.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.VISIBLE);
@@ -318,6 +329,9 @@ public class SummaryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Reset the settings values to default values
+     */
     private void reset(){
         csvName.setText(getString(R.string.csv_file_name));
         csvPath.setText(getString(R.string.csv_file_path));
@@ -326,9 +340,12 @@ public class SummaryActivity extends AppCompatActivity {
         emailContent.setText(getString(R.string.email_text_content));
     }
 
+    /**
+     * Close settings and save the settings
+     */
     private void closeSettings(){
         File path = new File(csvPath.getText().toString());
-        if(path.exists() && path.isDirectory()){
+        if(path.exists() && path.isDirectory()){  // Verify if the directory of the csv file exists
             setSettingsVisibility(false);
             saveSettings();
         }
@@ -339,6 +356,10 @@ public class SummaryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Load an activity to choose the directory where the csv file will be saved
+     */
+    @SuppressWarnings("deprecation")
     private void setPath(){
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -346,23 +367,27 @@ public class SummaryActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Choose directory"), DIRECTORY_CODE);
     }
 
+    /**
+     * Load the settings from the save
+     */
     private void readSettings(){
         File saveDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         // Create/load a file
         File saveFile = new File(saveDir.toString() + "/settings.sc");
-        if(saveFile.exists()) {
+        if(saveFile.exists()) {  // Verify the existence of the file
             try {
                 FileReader fr = new FileReader(saveFile);
                 BufferedReader br = new BufferedReader(fr);
                 StringBuilder sb = new StringBuilder();
                 String data;
 
-                while ((data = br.readLine()) != null) {
+                while ((data = br.readLine()) != null) {  // Read the data
                     sb.append(data);
                     sb.append("\n");
                 }
                 fr.close();
 
+                // Dispatch the data
                 String[] lines = sb.toString().split("\\$");
                 csvName.setText(lines[0]);
                 csvPath.setText(lines[1]);
@@ -375,6 +400,9 @@ public class SummaryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Save the settings into a file
+     */
     private void saveSettings(){
         File saveDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         // Create/load a file
@@ -386,7 +414,7 @@ public class SummaryActivity extends AppCompatActivity {
                 emailContent.getText() + "$";
         try{
             FileWriter fw = new FileWriter(saveFile);
-            fw.write(data);
+            fw.write(data); // Write the data
             fw.close();
         }
         catch (IOException e){

@@ -85,6 +85,17 @@
 
         </ListView>
 
+        <TextView
+            android:id="@+id/settingsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:text="@string/settings_text"
+            android:textSize="24sp" />
+
         <TableLayout
             android:id="@+id/settingsTable"
             android:layout_width="match_parent"
