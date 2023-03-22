@@ -61,14 +61,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/settingsBtn"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="39dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="0dp"
                 android:layout_weight="2"
-                android:backgroundTint="@color/info_background"
+                android:background="@color/activity_background"
+                android:backgroundTint="@color/activity_background"
+                android:contentDescription="engrenage"
+                android:src="@drawable/engrenage"
                 android:text="@string/settings"
                 app:cornerRadius="20dp"
                 tools:ignore="TouchTargetSizeCheck" />

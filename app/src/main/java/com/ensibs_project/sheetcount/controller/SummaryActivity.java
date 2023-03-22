@@ -29,6 +29,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -62,7 +63,7 @@ public class SummaryActivity extends AppCompatActivity {
     private TextView settingsTV;
     private Button finishButton;
     private Button backButton;
-    private Button settingsBtn;
+    private ImageButton settingsBtn;
     private TableLayout settingsTable;
     private EditText csvName;
     private EditText csvPath;
@@ -76,6 +77,7 @@ public class SummaryActivity extends AppCompatActivity {
      * Methode called at the creation of the activity
      * @param savedInstanceState Allow to get data back after destroy
      */
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,7 +165,6 @@ public class SummaryActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.finishTitle)).setMessage(R.string.finishText)
                 .setPositiveButton(R.string.finishPositiveButton, (dialogInterface, i) -> {
-                    writeToCSV();
                     closeContextMenu();
                     Runtime.getRuntime().exit(0);
                 }).setNegativeButton(R.string.finishNegativeButton, (dialogInterface, i) -> closeContextMenu()).create().show();
