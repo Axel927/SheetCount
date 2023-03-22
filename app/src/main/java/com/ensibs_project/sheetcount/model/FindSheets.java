@@ -279,8 +279,8 @@ public class FindSheets {
         Mat src = Imgcodecs.imread(file);                       //get  the image
         List<Integer> sections =  new ArrayList<>();            //create a list which will contain the position of the sheets
         int maxThreshold = 50;                                  //the threshold with the highest amount of detected items
-        for (int i=0 ; i < 16 ; i++){                           //for the thresholds of 50 to 200
-            threshold = 10*i+50;                                    //determine the new threshold
+        for (int i=0 ; i < 31 ; i++){                           //for the thresholds of 50 to 200
+            threshold = 5*i+50;                                    //determine the new threshold
             screeningBlack(sections,src);                           //find the sections
             Log.d("Leon", "processImage: " + sections);
             screeningGray(sections,src);                            //remove the sections which aren't gray
