@@ -256,6 +256,20 @@ public class MainActivity extends AppCompatActivity {
 
                 case BACK_TAKE_PICTURE:  // When a picture has just been taken
                     try {
+                        // Copy of the file
+                        File untouched = new File(photoPathUntouched);
+                        File toModify = new File(photoPath);
+                        InputStream is = new FileInputStream(untouched);
+                        OutputStream os = new FileOutputStream(toModify);
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = is.read(buffer)) > 0) {
+                            os.write(buffer, 0, len);
+                        }
+                        is.close();
+                        os.close();
+
                         imageViewer.loadUrl("file://" + findSheets.VariableThreshold(photoPath));  // Print the image and count the sheets
                         imageViewer.setInitialScale(1);
                         sBar.setProgress(findSheets.getThreshold());
