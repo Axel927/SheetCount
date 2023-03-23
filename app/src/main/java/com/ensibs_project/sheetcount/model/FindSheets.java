@@ -13,6 +13,16 @@
  *     GNU General Public License for more details.
  */
 
+/*
+
+  To start VariableThreshold will for every gray threshold between 50 and 200 in steps of 5 find the black lines and use them to create a list of the top and bottom of suspected sheets (screeningBlack),
+  he will then check if the middle pixel of each suspected sheet is gray if it isn't that sheet will be removed from the list (screeningGray), then he will check for each suspected sheet if it is near the median height otherwise it is removed from the list (checkHeight).
+  Finally it checks if the amount of detected sheets is higher than the previous maximum if it is the threshold is saved as the new maximum.
+
+  Once the optimal threshold has been determined we repeat the operation once more using the optimal threshold then we draw a dot on each detected sheet and show the image (processImage)
+ */
+
+
 
 package com.ensibs_project.sheetcount.model;
 
@@ -119,7 +129,7 @@ public class FindSheets {
      * @return Boolean whether the color is the asked one or not
      */
     public boolean checkColour(int rows, Mat src, String color){
-        double relativeThreshold = 0.20;                                        //allowed relative difference between the RGB values of a pixel and their average
+        double relativeThreshold = 0.2;                                        //allowed relative difference between the RGB values of a pixel and their average
         int grayThreshold = threshold;                                                //threshold under which a pixel is considered gray
         int blackThreshold = threshold * 110 / 140;                                               //threshold over which a pixel is considered black
 
