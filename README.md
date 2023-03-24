@@ -31,7 +31,7 @@
 The APK of this software is available in the [release section](https://github.com/Axel927/SheetCount/releases) or is reachable  by scanning the below code QR.
 
 <p align="center">
-<img src="https://q-r-code.fr/qrcodes/b39523a5fcfd4103a8fb07e70a491549.png" height="200">
+<img src="https://user-images.githubusercontent.com/77966063/227525296-a2be2ef3-8018-4384-8d62-2c307c214091.png" height="200">
 </p>
 
 Once the APK installed and the app started, you should consent the demands of authorisation. Next, you should press the button *Prendre une photo* which will open the camera of the phone. The photo must be taken close to the sheets and the sheets **must be** in the center of the image.  The slider below the photo allow to change a parameter of sheet detection which may upgrade the quality of the count. 
