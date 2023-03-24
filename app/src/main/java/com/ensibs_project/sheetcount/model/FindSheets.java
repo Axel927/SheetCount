@@ -1,5 +1,14 @@
 /**
  * This file contains the class which find and counts the sheets.
+ *
+ * This is an explanation of the algorithm used to detect the sheets:
+ * To start VariableThreshold will for every gray threshold between 50 and 200 in steps of 5 find the black lines and use them to create a list of the top and bottom of suspected sheets (screeningBlack),
+ *  he will then check if the middle pixel of each suspected sheet is gray if it isn't that sheet will be removed from the list (screeningGray), then he will check for each suspected sheet if it is near the median height otherwise it is removed from the list (checkHeight).
+ *  Finally it checks if the amount of detected sheets is higher than the previous maximum if it is the threshold is saved as the new maximum.
+ *
+ *  Once the optimal threshold has been determined we repeat the operation once more using the optimal threshold then we draw a dot on each detected sheet and show the image (processImage)
+ *
+ *
  * Copyright © 2023  Collen Leon and Tremaudant Axel
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -12,17 +21,6 @@
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
  */
-
-/*
-
-  To start VariableThreshold will for every gray threshold between 50 and 200 in steps of 5 find the black lines and use them to create a list of the top and bottom of suspected sheets (screeningBlack),
-  he will then check if the middle pixel of each suspected sheet is gray if it isn't that sheet will be removed from the list (screeningGray), then he will check for each suspected sheet if it is near the median height otherwise it is removed from the list (checkHeight).
-  Finally it checks if the amount of detected sheets is higher than the previous maximum if it is the threshold is saved as the new maximum.
-
-  Once the optimal threshold has been determined we repeat the operation once more using the optimal threshold then we draw a dot on each detected sheet and show the image (processImage)
- */
-
-
 
 package com.ensibs_project.sheetcount.model;
 
@@ -306,5 +304,3 @@ public class FindSheets {
     }
 
 }
-
-

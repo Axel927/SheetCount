@@ -3,7 +3,7 @@
 # SheetCount
  
 <p align="center">
-<img src="https://user-images.githubusercontent.com/77966063/222445161-5da04913-74b2-4a83-86d9-52e760e71290.jpg" alt="drawing" height="500">
+<img src="https://user-images.githubusercontent.com/77966063/227518116-6adb34b9-dc82-47db-9ba9-ede68e457365.jpg" alt="drawing" height="500">
 </p>
 
 ## Table of contents
@@ -28,9 +28,15 @@
 <span id="Utilisation"><span>
 ## Utilisation
 
+The APK of this software is available in the [release section](https://github.com/Axel927/SheetCount/releases) or is reachable  by scanning the below code QR.
 
+<p align="center">
+<img src="https://q-r-code.fr/qrcodes/b39523a5fcfd4103a8fb07e70a491549.png" height="200">
+</p>
 
+Once the APK installed and the app started, you should consent the demands of authorisation. Next, you should press the button *Prendre une photo* which will open the camera of the phone. The photo must be taken close to the sheets and the sheets **must be** in the center of the image.  The slider below the photo allow to change a parameter of sheet detection which may upgrade the quality of the count. 
 
+The button *Résumé* give a summary of what has been counted. If you press the button *Exporter les données*, the data will be save in a csv file and you will have the possibility to send the file by email. The content of the email can be settled by clicking the gearwheel.
 
 <span id="Development"><span>
 ## Development

@@ -16,7 +16,7 @@
     <string name="summary">Résumé</string>
     <string name="textAdd">Ajout :</string>
     <string name="infoTitle">Informations</string>
-    <string name="infoText">Notice d\'utilisation  :\n\nLorsque vous prenez une photo en mode portrait ou paysage veillez à ce que les tôles soit au milieu de la photo.\n\nSuite à la prise d\'une photo un seuil de gris va être automatiquement déterminé, si le résultat ne vous convient pas vous pouvez à l\'aide du slider changer le seuil afin d\'obtenir de meilleur résultat.\n\nDes points rouges et verts seront dessinés sur la photo afin de montrer les tôles détectées si vous ne les voyez pas bien vous pouvez zoomer sur l\'image avec vos doigts. </string>
+    <string name="infoText">Notice d\'utilisation :\n\nLorsque vous prenez une photo en mode portrait ou paysage veillez à ce que les tôles soient au milieu de la photo.\n\nSuite à la prise d\'une photo, un seuil de gris va être automatiquement déterminé. Si le résultat ne vous convient pas vous pouvez, à l\'aide du slider, changer le seuil afin d\'obtenir un meilleur résultat.\n\nDes points rouges et verts seront dessinés sur la photo afin de montrer les tôles détectées. Si vous ne les voyez pas bien vous pouvez zoomer sur l\'image avec vos doigts. </string>
     <string name="back">Retour</string>
     <string name="finish">Terminer</string>
     <string name="totalText">Total : </string>
