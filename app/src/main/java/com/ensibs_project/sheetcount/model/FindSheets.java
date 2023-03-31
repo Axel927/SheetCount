@@ -29,8 +29,6 @@ import static org.opencv.imgproc.Imgproc.LINE_8;
 import static org.opencv.imgproc.Imgproc.circle;
 import static java.lang.Integer.parseInt;
 
-import android.util.Log;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -129,7 +127,7 @@ public class FindSheets {
     public boolean checkColour(int rows, Mat src, String color){
         double relativeThreshold = 0.2;                                        //allowed relative difference between the RGB values of a pixel and their average
         int grayThreshold = threshold;                                                //threshold under which a pixel is considered gray
-        int blackThreshold = threshold * 110 / 140;                                               //threshold over which a pixel is considered black
+        int blackThreshold = threshold * 115 / 140;                                               //threshold over which a pixel is considered black
 
         int middle = src.cols()/2;                                              //middle of the image
         double moy = (src.get(rows,middle)[0] + src.get(rows,middle)[1] + src.get(rows,middle)[2])/3; //average of the pixels RGB values
@@ -165,7 +163,7 @@ public class FindSheets {
 
         for (int i=0; i < sections.size()/2;i++){                               //for each two successive lines
             width = (parseInt(sections.get(2*i+1).toString()) - parseInt(sections.get(2*i).toString()))/2; //determine the width
-            Log.d("Leon", "drawCircles: "+ width);
+
             if (width < maxWidth && width > 5){                                 //if the width is inferior to the maxWidth and inferior to the minWidth
                 maxWidth = width;                                               //Width becomes maxWidth
             }
@@ -173,7 +171,7 @@ public class FindSheets {
         if (maxWidth == 200){
             maxWidth = 5;
         }
-        Log.d("Leon", "drawCircles: "+ maxWidth);
+
         for (int i=0; i < sections.size()/2;i++){                               //for each two successive lines
 
             center = (parseInt(sections.get(2*i).toString())+ parseInt(sections.get(2*i+1).toString()))/2; //determine the center
@@ -221,15 +219,11 @@ public class FindSheets {
         } catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
-        Log.d("height", "checkHeight: "+ medianHeight);
-        Log.d("height", "checkHeight: "+ sections);
-        Log.d("height", "checkHeight: "+ listHeight);
 
         for (int i=0; i < listHeight.size();i++){                               //For each sheet
             height = parseInt(listHeight.get(i).toString());                    //get the height
             relativeDifference =(double) (height-medianHeight) / medianHeight;  //calculate the relative difference
-            Log.d("Leon", "checkHeight: "+ relativeDifference);
-            Log.d("Leon", "checkHeight: "+ height);
+
             if (relativeDifference <0){                                         //if it's negative
                 relativeDifference *= -1;                                       //multiply it by -1
             }
@@ -239,7 +233,6 @@ public class FindSheets {
                 removedNumbers+=1;                                              //the amount of removed sheets increase by 1
             }
         }
-        Log.d("height", "checkHeight: "+ sections);
     }
 
 
@@ -256,10 +249,8 @@ public class FindSheets {
 
         screeningBlack(sections,src);                           //find the sections
         //screeningColor(sections,src,"black");
-        Log.d("Leon", "processImage: " + sections);
         screeningGray(sections,src);                            //remove the sections which aren't gray
         //screeningColor(sections,src,"gray");
-        Log.d("Leon", "processImage: " + sections);
         checkHeight(sections);                                  //remove the sections whose height are too different from the median height
         amountSheets = counting (sections);                     //Determine the amount of sheets
         drawCircles(sections,src);                              //Draw circles on the sheets
@@ -290,9 +281,9 @@ public class FindSheets {
         for (int i=0 ; i < 31 ; i++){                           //for the thresholds of 50 to 200
             threshold = 5*i+50;                                    //determine the new threshold
             screeningBlack(sections,src);                           //find the sections
-            Log.d("Leon", "processImage: " + sections);
+
             screeningGray(sections,src);                            //remove the sections which aren't gray
-            Log.d("Leon", "processImage: " + sections);
+
             checkHeight(sections);                                  //remove the sections whose height are too different from the median height
             if (counting (sections)> amountSheets){                 //if it has more detected items than the previous maximum
                 amountSheets = counting (sections);                     //Determine the amount of sheets

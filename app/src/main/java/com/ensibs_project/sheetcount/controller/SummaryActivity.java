@@ -34,7 +34,6 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -66,12 +65,11 @@ public class SummaryActivity extends AppCompatActivity {
     private ImageButton settingsBtn;
     private TableLayout settingsTable;
     private EditText csvName;
-    private EditText csvPath;
     private EditText emailTo;
     private EditText emailObject;
     private EditText emailContent;
+    private String csvPath;
     public static final String BUNDLE_STATE_COUNT = "BUNDLE_STATE_COUNT";
-    private static final int DIRECTORY_CODE = 1;
 
     /**
      * Methode called at the creation of the activity
@@ -93,8 +91,6 @@ public class SummaryActivity extends AppCompatActivity {
         settingsBtn = findViewById(R.id.settingsBtn);
         settingsTable = findViewById(R.id.settingsTable);
         csvName = findViewById(R.id.csvName);
-        Button pathBtn = findViewById(R.id.pathBtn);
-        csvPath = findViewById(R.id.editTextPath);
         emailTo = findViewById(R.id.editTextEmail);
         emailObject = findViewById(R.id.objectMail);
         emailContent = findViewById(R.id.mailContent);
@@ -105,7 +101,6 @@ public class SummaryActivity extends AppCompatActivity {
         settingsBtn.setOnClickListener(view -> settings());
         resetBtn.setOnClickListener(view -> reset());
         finishSettings.setOnClickListener(view -> closeSettings());
-        pathBtn.setOnClickListener(view -> setPath());
         setSettingsVisibility(false);
 
         // Set the action of the buttons on click
@@ -113,6 +108,8 @@ public class SummaryActivity extends AppCompatActivity {
         finishButton.setOnClickListener(view -> finishCount());
         aboutButton.setOnClickListener(view -> about());
         exportButton.setOnClickListener(view -> writeToCSV());
+
+        csvPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString();
 
         int totalCounted = 0;
         list = new ArrayList<>();
@@ -134,30 +131,6 @@ public class SummaryActivity extends AppCompatActivity {
     }
 
     /**
-     * Get the path of the csv file
-     * @param requestCode return code
-     * @param resultCode result code (must be 'ok')
-     * @param data the data
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == DIRECTORY_CODE){
-            try {
-                if (data != null) {
-                    String[] pathSections = data.getData().getPath().split(":");
-                    String path  = Environment.getExternalStorageDirectory().getPath() + "/" + pathSections[pathSections.length-1];
-                    csvPath.setText(path);
-                }
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
      * Restart the app
      */
     private void finishCount(){
@@ -165,6 +138,17 @@ public class SummaryActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.finishTitle)).setMessage(R.string.finishText)
                 .setPositiveButton(R.string.finishPositiveButton, (dialogInterface, i) -> {
+                    // Delete the csvfile
+                    @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("dd-MM-yyy").format(new Date());
+                    File file = new File(csvPath + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
+                    if(file.exists()) {
+                        boolean r = file.delete();
+                        if (!r) {
+                            AlertDialog.Builder b = new AlertDialog.Builder(this);
+                            b.setTitle(getString(R.string.export_error_title)).setMessage(getResources().getString(R.string.export_error_text) + "File not deleted")
+                                    .setPositiveButton("OK", (dialogInterface2, j) -> closeContextMenu()).create().show();
+                        }
+                    }
                     closeContextMenu();
                     Runtime.getRuntime().exit(0);
                 }).setNegativeButton(R.string.finishNegativeButton, (dialogInterface, i) -> closeContextMenu()).create().show();
@@ -174,6 +158,17 @@ public class SummaryActivity extends AppCompatActivity {
      * Go back to main
      */
     private void backToMain(){
+        // Delete the csvfile
+        @SuppressLint("SimpleDateFormat") String time = new SimpleDateFormat("dd-MM-yyy").format(new Date());
+        File file = new File(csvPath + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
+        if(file.exists()) {
+            boolean r = file.delete();
+            if (!r) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(getString(R.string.export_error_title)).setMessage(getResources().getString(R.string.export_error_text) + "File not deleted")
+                        .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
+            }
+        }
         Intent intent = new Intent();
         // Send back the list of count
         intent.putStringArrayListExtra(BUNDLE_STATE_COUNT, new ArrayList<>(list));
@@ -265,9 +260,9 @@ public class SummaryActivity extends AppCompatActivity {
             data = data.concat("\n");
         }
 
-        String time = new SimpleDateFormat("mm:hh:dd-MM-yyy").format(new Date());
+        String time = new SimpleDateFormat("dd-MM-yyy").format(new Date());
         // Create file
-        File csvFile = new File(csvPath.getText() + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
+        File csvFile = new File(csvPath + "/" + csvName.getText().toString().replace("{date}", time) + ".csv");
         try{
             FileWriter fw = new FileWriter(csvFile);
             fw.write(data);
@@ -281,12 +276,12 @@ public class SummaryActivity extends AppCompatActivity {
 
         // Send email
         try {
-            time = new SimpleDateFormat("dd/MM/yyy").format(new Date());
+            String timeBis = new SimpleDateFormat("dd/MM/yyy").format(new Date());
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailTo.getText().toString()});
-            intent.putExtra(Intent.EXTRA_SUBJECT, emailObject.getText().toString().replace("{date}", time));
-            intent.putExtra(Intent.EXTRA_TEXT, emailContent.getText().toString().replace("{date}", time));
+            intent.putExtra(Intent.EXTRA_SUBJECT, emailObject.getText().toString().replace("{date}", timeBis));
+            intent.putExtra(Intent.EXTRA_TEXT, emailContent.getText().toString().replace("{date}", timeBis));
 
             Uri fileUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", csvFile);
             intent.putExtra(Intent.EXTRA_STREAM, fileUri);
@@ -335,37 +330,17 @@ public class SummaryActivity extends AppCompatActivity {
      */
     private void reset(){
         csvName.setText(getString(R.string.csv_file_name));
-        csvPath.setText(getString(R.string.csv_file_path));
         emailTo.setText(getString(R.string.email_address));
         emailObject.setText(getString(R.string.email_object));
         emailContent.setText(getString(R.string.email_text_content));
     }
 
     /**
-     * Close settings and save the settings
+     * Close and save the settings
      */
     private void closeSettings(){
-        File path = new File(csvPath.getText().toString());
-        if(path.exists() && path.isDirectory()){  // Verify if the directory of the csv file exists
-            setSettingsVisibility(false);
-            saveSettings();
-        }
-        else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.error_path_title)).setMessage(getResources().getString(R.string.error_path_text))
-                    .setPositiveButton("OK", (dialogInterface, i) -> closeContextMenu()).create().show();
-        }
-    }
-
-    /**
-     * Load an activity to choose the directory where the csv file will be saved
-     */
-    @SuppressWarnings("deprecation")
-    private void setPath(){
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.putExtra("location", csvPath.getText());
-        startActivityForResult(Intent.createChooser(intent, "Choose directory"), DIRECTORY_CODE);
+        setSettingsVisibility(false);
+        saveSettings();
     }
 
     /**
@@ -391,7 +366,6 @@ public class SummaryActivity extends AppCompatActivity {
                 // Dispatch the data
                 String[] lines = sb.toString().split("\\$");
                 csvName.setText(lines[0]);
-                csvPath.setText(lines[1]);
                 emailTo.setText(lines[2]);
                 emailObject.setText(lines[3]);
                 emailContent.setText(lines[4]);
@@ -409,7 +383,6 @@ public class SummaryActivity extends AppCompatActivity {
         // Create/load a file
         File saveFile = new File(saveDir.toString() + "/settings.sc");
         String data = csvName.getText() + "$" +
-                csvPath.getText() + "$" +
                 emailTo.getText() + "$" +
                 emailObject.getText() + "$" +
                 emailContent.getText() + "$";

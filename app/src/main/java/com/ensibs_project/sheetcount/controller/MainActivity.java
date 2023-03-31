@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Initialise SeekBar
-        sBar = (SeekBar) findViewById(R.id.thresholdSeekBar);
-        tView = (TextView) findViewById(R.id.thresholdTextview);
+        sBar = findViewById(R.id.thresholdSeekBar);
+        tView = findViewById(R.id.thresholdTextview);
         tView.setText(sBar.getProgress()+"" );
 
         findSheets = new FindSheets();

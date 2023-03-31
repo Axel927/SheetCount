@@ -65,4 +65,5 @@
     <string name="error_path_title">Erreur</string>
     <string name="error_path_text">Le dossier choisi pour le fichier de sauvegarde des données n\'existe pas. Veuillez modifier le chemin.</string>
     <string name="settings_text">Paramètres</string>
+    <string name="settings_button">engrenage</string>
 </resources>
