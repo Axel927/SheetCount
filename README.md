@@ -3,7 +3,7 @@
 # SheetCount
  
 <p align="center">
-<img src="https://user-images.githubusercontent.com/77966063/227518116-6adb34b9-dc82-47db-9ba9-ede68e457365.jpg" alt="drawing" height="500">
+<img src="https://user-images.githubusercontent.com/77966063/231435291-1ab31966-5637-4741-af38-781bcfc15253.png" alt="drawing" height="500">
 </p>
 
 ## Table of contents
