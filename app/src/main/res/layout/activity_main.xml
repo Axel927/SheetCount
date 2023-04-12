@@ -204,7 +204,7 @@
             android:indeterminate="false"
             android:progressTint="@color/button_background"
             android:thumbTint="@color/button_background"
-            android:max="200"
+            android:max="180"
             android:min="50"
             android:progress="140"
             tools:targetApi="o" />
