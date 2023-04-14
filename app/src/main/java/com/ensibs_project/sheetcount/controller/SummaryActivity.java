@@ -366,9 +366,9 @@ public class SummaryActivity extends AppCompatActivity {
                 // Dispatch the data
                 String[] lines = sb.toString().split("\\$");
                 csvName.setText(lines[0]);
-                emailTo.setText(lines[2]);
-                emailObject.setText(lines[3]);
-                emailContent.setText(lines[4]);
+                emailTo.setText(lines[1]);
+                emailObject.setText(lines[2]);
+                emailContent.setText(lines[3]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
