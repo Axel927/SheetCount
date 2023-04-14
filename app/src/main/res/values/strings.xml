@@ -47,7 +47,7 @@
     <string name="email_error_title">Erreur</string>
     <string name="email_error_text">Application d\'email non trouvée.</string>
     <string name="email_subject">Comptage de tôles du</string>
-    <string name="column_name">Nom;Quantité\n</string>
+    <string name="column_name">Nom;Quantite\n</string>
     <string name="settings">P</string>
     <string name="default_value_threshold">140</string>
     <string name="csv_file_text">Nom fichier : </string>

@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) { //when you stop manipulating the seekbar
-                if (imageExists){ //if there is an image
+                if (imageExists && !valueCountedText.getText().toString().equals("0")){ //if there is an image
                     findSheets.reinitializeImage(photoPath,photoPathUntouched); //remove the dots
                     imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
                     imageViewer.setInitialScale(1);
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         if (i < 50){ i = 50; }
         sBar.setProgress(i); //set the new seekBar value
         findSheets.changeThreshold(i); //change the threshold
-        if (imageExists){   //if there is an image
+        if (imageExists && !valueCountedText.getText().toString().equals("0")){   //if there is an image
             findSheets.reinitializeImage(photoPath,photoPathUntouched); //remove the dots
             imageViewer.loadUrl("file://" + findSheets.processImage(photoPath));  // Print the image and count the sheets
             imageViewer.setInitialScale(1);
