@@ -275,6 +275,7 @@ public class FindSheets {
      */
     public String VariableThreshold(String file){
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );         //load the opencv library
+        amountSheets = 0;
         Mat src = Imgcodecs.imread(file);                       //get  the image
         List<Integer> sections =  new ArrayList<>();            //create a list which will contain the position of the sheets
         int maxThreshold = 50;                                  //the threshold with the highest amount of detected items
@@ -289,11 +290,9 @@ public class FindSheets {
             if (counting (sections)> amountSheets){                 //if it has more detected items than the previous maximum
                 amountSheets = counting (sections);                     //Determine the amount of sheets
                 maxThreshold = threshold;                               //assign a new maxThreshold
-
             }
         }
         threshold = maxThreshold;                               //the threshold is the maxThreshold
         return processImage(file);                              //Process the image with the new threshold
     }
-
 }
